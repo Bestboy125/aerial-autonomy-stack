@@ -88,16 +88,30 @@ One should be able to `ping 10.10.1.44` (the Orin NX) from MAVLink Console on QG
 Also read the [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#ethernet-setup-using-netplan)
 -->
 
-## Configure ArduPilot's MAVLink bridge
+## Configure ArduPilot for MAVROS
 
 > [!NOTE]
 > Skip this step if you are using PX4
 
-MAVLink can be connected either over ethernet or using the Pixhawk 6X's TELEM2 serial port
+MAVLink and MAVROS can be connected through the Pixhawk 6X's `TELEM2` serial port (this is ArduPilot's `SERIAL2` and Orin's `/dev/ttyTHS1`)
 
-- [Holybro documentation](https://docs.holybro.com/autopilot/pixhawk-baseboards/pixhawk-jetson-baseboard/mavlink-bridge)
-- [ArduPilot documentation](https://ardupilot.org/copter/docs/common-serial-options.html)
-- [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#mavlink-setup)
+In QGroundControl -> "Vehicle Configuration" -> "Parameters" set:
+
+```sh
+SERIAL2_BAUD 921600
+SERIAL2_OPTIONS 0
+SERIAL2_PROTOCOL MAVLink2
+```
+
+> [!CAUTION]
+> Match ArduPilot parmeter `SYSID_THISMAV` with the `DRONE_ID` used to launch `./deploy_run.sh`: this is the `ROS_DOMAIN_ID` of the aircraft container
+
+<!-- 
+- [ArduPilot serial configuration](https://ardupilot.org/copter/docs/common-serial-options.html)
+- [Jetson baseboard serial configuration](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#serial-connection)
+- [MAVROS connection](https://github.com/mavlink/mavros/blob/ros2/mavros/README.md)
+- [Requesting MAVLink data from ArduPilot](https://ardupilot.org/dev/docs/mavlink-requesting-data.html)
+-->
 
 ## Flash JetPack 6 to Jetson Orin
 
