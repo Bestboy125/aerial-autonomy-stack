@@ -155,10 +155,7 @@ docker run -it --rm --entrypoint bash -v ~/Downloads:/temp simulation-image -c \
 
 To flash the newly created `.px4` or `.apj` file to your autopilot board, follow [QGC's User Guide](https://docs.qgroundcontrol.com/Stable_V5.0/en/qgc-user-guide/setup_view/firmware.html) 
 
-## Configure PX4's Network and DDS Client
-
-> [!NOTE]
-> Skip this step if you are using ArduPilot
+## PX4: Configure 6x's Network and DDS Client
 
 On the Jetson Baseboard's Orin NX, under "Settings" -> "Network", configure the "PCI Ethernet" connection to "Manual" with IPv4 with address 10.10.1.44 and netmask 255.255.255.0
 
@@ -216,10 +213,7 @@ One should be able to `ping 10.10.1.44` (the Orin NX) from MAVLink Console on QG
 - [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#ethernet-setup-using-netplan)
 -->
 
-## Configure ArduPilot Serial for MAVROS
-
-> [!NOTE]
-> Skip this step if you are using PX4
+## ArduPilot: Configure 6X's Serial for MAVROS
 
 MAVROS can be connected to MAVLink using the Pixhawk 6X's `TELEM2` serial port (this is ArduPilot's `SERIAL2` and Orin's `/dev/ttyTHS1`)
 

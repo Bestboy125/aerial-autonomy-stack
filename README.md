@@ -53,13 +53,13 @@ Read about the [*rationale*](/supplementary/RATIONALE.md) for AAS in the [`suppl
 
 ```sh
 sudo apt update && sudo apt install -y git git-lfs xterm xfonts-base
-git lfs install        # Without this, the `git clone` command will not download the large files in `simulation_resources/`
+git lfs install
 
 mkdir -p ~/git && cd ~/git
 git clone https://github.com/JacopoPan/aerial-autonomy-stack.git
 
 cd ~/git/aerial-autonomy-stack/scripts
-./sim_build.sh         # Build the Docker images, the first build takes ~25', subsequent ones will take seconds to minutes thanks to the Docker cache
+./sim_build.sh
 ```
 
 > Latest weekly builds with `sim_build.sh`: 
@@ -151,7 +151,7 @@ Once flown from CLI, implemented your mission in [`MissionNode.conops_callback()
 > To build changes made **on the host** in either `simulation_ws/src` or `aircraft_ws/src` **in the simulation and/or in the aircraft container**:
 > 
 > ```sh
-> cd /aas/simulation_ws/                              # Or /aas/aircraft_ws/
+> cd /aas/simulation_ws/                              # Or cd /aas/aircraft_ws/
 > colcon build --symlink-install
 > ```
 > 
@@ -264,13 +264,13 @@ Once flown from CLI, implemented your mission in [`MissionNode.conops_callback()
 
 ```sh
 sudo apt update && sudo apt install -y git git-lfs
-git lfs install          # Without this, the `git clone` command will not download the large files in `simulation_resources/`
+git lfs install
 
 mkdir -p ~/git && cd ~/git
 git clone https://github.com/JacopoPan/aerial-autonomy-stack.git
 
 cd ~/git/aerial-autonomy-stack/scripts
-./deploy_build.sh        # On Jetson Orin NX, build for arm64 with TensorRT support, the first build takes ~1h (mostly to build onnxruntime-gpu from source)
+./deploy_build.sh    # Build for arm64, on Jetson Orin NX the first build takes ~1h, mostly to build onnxruntime-gpu with TensorRT support from source
 ```
 
 > Latest weekly build with `deploy_build.sh`:

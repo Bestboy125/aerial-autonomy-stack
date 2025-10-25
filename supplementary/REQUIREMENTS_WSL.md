@@ -56,10 +56,8 @@ From PowerShell
 ```sh
 wsl ~
 
-nvidia-smi                          # From WSL, check NVIDIA driver (these instructions are tested on Driver Version: 581.15, CUDA Version:13.0)
-
 sudo apt update && sudo apt install -y mesa-utils
-
+nvidia-smi                          # From WSL, check NVIDIA driver (these instructions are tested on Driver Version: 581.15, CUDA Version:13.0)
 glxinfo -B                          # Check the GPU is the OpenGL renderer
 ```
 
