@@ -31,68 +31,51 @@ fi
 
 echo "Creating ${NUM_QUADS} quadcopter(s) and ${NUM_VTOLS} VTOL(s)..."
 
-# Counter for unique port and model IDs
-DRONE_COUNT=0
-
-# Loop for quads
-for i in $(seq 1 $NUM_QUADS); do
-    DRONE_COUNT=$((DRONE_COUNT + 1))
+create_model() {
+    local BASE_MODEL_PATH=$1
+    local DRONE_ID=$2
     
-    BASE_MODEL_NAME=$(basename "$QUAD_MODEL_PATH")
-    NEW_MODEL_NAME="${BASE_MODEL_NAME}_${DRONE_COUNT}"
-    NEW_MODEL_DIR="${QUAD_MODEL_PATH}/../${NEW_MODEL_NAME}"
+    BASE_MODEL_NAME=$(basename "$BASE_MODEL_PATH")
+    NEW_MODEL_NAME="${BASE_MODEL_NAME}_${DRONE_ID}"
+    NEW_MODEL_DIR="${BASE_MODEL_PATH}/../${NEW_MODEL_NAME}"
 
     mkdir -p "$NEW_MODEL_DIR"
-    cp "$QUAD_MODEL_PATH"/model.sdf "$NEW_MODEL_DIR"/
+    cp "$BASE_MODEL_PATH"/model.sdf "$NEW_MODEL_DIR"/
     
     # Create .config file to let gz sim include the model
     CONFIG_FILE="${NEW_MODEL_DIR}/model.config"
-    echo "<?xml version='1.0'?>" > "$CONFIG_FILE"
-    echo "<model>" >> "$CONFIG_FILE"
-    echo "  <name>${NEW_MODEL_NAME}</name>" >> "$CONFIG_FILE"
-    echo "  <version>1.0</version>" >> "$CONFIG_FILE"
-    echo "  <sdf version='1.9'>model.sdf</sdf>" >> "$CONFIG_FILE"
-    echo "  <description>" >> "$CONFIG_FILE"
-    echo "    A dynamically generated model of ${NEW_MODEL_NAME}." >> "$CONFIG_FILE"
-    echo "  </description>" >> "$CONFIG_FILE"
-    echo "</model>" >> "$CONFIG_FILE"
+    cat > "$CONFIG_FILE" << EOF
+<?xml version='1.0'?>
+<model>
+  <name>${NEW_MODEL_NAME}</name>
+  <version>1.0</version>
+  <sdf version='1.9'>model.sdf</sdf>
+  <description>
+    A dynamically generated model of ${NEW_MODEL_NAME}.
+  </description>
+</model>
+EOF
 
     sed -i "s/<model name=\"${BASE_MODEL_NAME}\">/<model name=\"${NEW_MODEL_NAME}\">/g" "${NEW_MODEL_DIR}/model.sdf"
-    sed -i "s/<fdm_port_in>${BASE_PORT}<\/fdm_port_in>/<fdm_port_in>$(($BASE_PORT + ($DRONE_COUNT - 1) * 10))<\/fdm_port_in>/g" "${NEW_MODEL_DIR}/model.sdf"
+    sed -i "s/<fdm_port_in>${BASE_PORT}<\/fdm_port_in>/<fdm_port_in>$(($BASE_PORT + ($DRONE_ID - 1) * 10))<\/fdm_port_in>/g" "${NEW_MODEL_DIR}/model.sdf"
 
     DEST_PARAMS="${NEW_MODEL_DIR}/ardupilot-4.6.params"
-    cp "${QUAD_MODEL_PATH}/ardupilot-4.6.params" "$DEST_PARAMS"
+    cp "${BASE_MODEL_PATH}/ardupilot-4.6.params" "$DEST_PARAMS"
+}
 
+# Counter for unique port and model IDs
+DRONE_ID=0
+
+# Loop for quads
+for i in $(seq 1 $NUM_QUADS); do
+    DRONE_ID=$((DRONE_ID + 1))
+    create_model "$QUAD_MODEL_PATH" "$DRONE_ID"
 done
 
 # Loop for VTOLs
 for i in $(seq 1 $NUM_VTOLS); do
-    DRONE_COUNT=$((DRONE_COUNT + 1))
-    
-    BASE_MODEL_NAME=$(basename "$VTOL_MODEL_PATH")
-    NEW_MODEL_NAME="${BASE_MODEL_NAME}_${DRONE_COUNT}"
-    NEW_MODEL_DIR="${VTOL_MODEL_PATH}/../${NEW_MODEL_NAME}"
-
-    mkdir -p "$NEW_MODEL_DIR"
-    cp "$VTOL_MODEL_PATH"/model.sdf "$NEW_MODEL_DIR"/
-
-    CONFIG_FILE="${NEW_MODEL_DIR}/model.config"
-    echo "<?xml version='1.0'?>" > "$CONFIG_FILE"
-    echo "<model>" >> "$CONFIG_FILE"
-    echo "  <name>${NEW_MODEL_NAME}</name>" >> "$CONFIG_FILE"
-    echo "  <version>1.0</version>" >> "$CONFIG_FILE"
-    echo "  <sdf version='1.9'>model.sdf</sdf>" >> "$CONFIG_FILE"
-    echo "  <description>" >> "$CONFIG_FILE"
-    echo "    A dynamically generated model of ${NEW_MODEL_NAME}." >> "$CONFIG_FILE"
-    echo "  </description>" >> "$CONFIG_FILE"
-    echo "</model>" >> "$CONFIG_FILE"
-
-    sed -i "s/<model name=\"${BASE_MODEL_NAME}\">/<model name=\"${NEW_MODEL_NAME}\">/g" "${NEW_MODEL_DIR}/model.sdf"
-    sed -i "s/<fdm_port_in>${BASE_PORT}<\/fdm_port_in>/<fdm_port_in>$(($BASE_PORT + ($DRONE_COUNT - 1) * 10))<\/fdm_port_in>/g" "${NEW_MODEL_DIR}/model.sdf"
-
-    DEST_PARAMS="${NEW_MODEL_DIR}/ardupilot-4.6.params"
-    cp "${VTOL_MODEL_PATH}/ardupilot-4.6.params" "$DEST_PARAMS"
-
+    DRONE_ID=$((DRONE_ID + 1))
+    create_model "$VTOL_MODEL_PATH" "$DRONE_ID"
 done
 
 echo "Done."

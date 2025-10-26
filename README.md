@@ -323,7 +323,7 @@ Once done, detach Tmux (and remove the containers) with `Ctrl + b`, then `d`
 - The simulation (SITL or HITL) container must start after the aircraft ones for Gstreamer to pick up the UDP streams
 - wmctrl does not work as-is in WSLg
 - QGC is started with a virtual joystick (with low throttle if using only VTOLs and centered throttle if there are quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
-- ArduPilot CIRCLE mode for quads require to explicitly center the virtual throttle with 'rc 3 1500' to keep altitude
+- ArduPilot CIRCLE mode for quads require to explicitly center the virtual throttle with 'rc 3 1500' to keep altitude, QGC virtual joystick can interfere
 - Gazebo WindEffects plugin is disabled/not working for PX4 standard_vtol
 - Command 178 MAV_CMD_DO_CHANGE_SPEED is accepted but not effective in changing speed for ArduPilot VTOL
 - ArduPilot SITL for Iris uses option -f that also sets "external": True, this is not the case for the Alti Transition from ArduPilot/SITL_Models 

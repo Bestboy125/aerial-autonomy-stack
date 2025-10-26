@@ -155,53 +155,39 @@ calculate_terminal_position $DRONE_ID
 xterm "${XTERM_CONFIG_ARGS[@]}" -title "Simulation" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
 
 if [[ "$HITL" == "false" ]]; then
-  # Launch the quad containers
-  for i in $(seq 1 $NUM_QUADS); do
-    DRONE_ID=$((DRONE_ID + 1))
-    sleep 1.5 # Limit resource usage
-    DOCKER_CMD="docker run -it --rm \
-      --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
-      --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
-      --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT \
-      --env DRONE_TYPE=quad \
-      --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
-      --env SIMULATED_TIME=true \
-      --env SUBNET_PREFIX=$SUBNET_PREFIX \
-      --net=aas-network --ip=${SUBNET_PREFIX}.1.$DRONE_ID \
-      --privileged \
-      --name aircraft-container_$DRONE_ID"
-    # Add WSL-specific options and complete the command
-    if [[ "$DESK_ENV" == "wsl" ]]; then
-      DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
-    fi
-    DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
-    calculate_terminal_position $DRONE_ID
-    xterm "${XTERM_CONFIG_ARGS[@]}" -title "Quad $DRONE_ID" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
-  done
-
-  # Launch the vtol containers
-  for i in $(seq 1 $NUM_VTOLS); do
-    DRONE_ID=$((DRONE_ID + 1))
-    sleep 1.5 # Limit resource usage
-    DOCKER_CMD="docker run -it --rm \
-      --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
-      --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
-      --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT \
-      --env DRONE_TYPE=vtol \
-      --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
-      --env SIMULATED_TIME=true \
-      --env SUBNET_PREFIX=$SUBNET_PREFIX \
-      --net=aas-network --ip=${SUBNET_PREFIX}.1.$DRONE_ID \
-      --privileged \
-      --name aircraft-container_$DRONE_ID"
-    # Add WSL-specific options and complete the command
-    if [[ "$DESK_ENV" == "wsl" ]]; then
-      DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
-    fi
-    DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
-    calculate_terminal_position $DRONE_ID
-    xterm "${XTERM_CONFIG_ARGS[@]}" -title "VTOL $DRONE_ID" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
-  done
+  # Function to launch the aircraft containers
+  launch_aircraft_containers() {
+    local drone_type=$1
+    local num_drones=$2
+    local type_label=$3
+    
+    for i in $(seq 1 $num_drones); do
+      DRONE_ID=$((DRONE_ID + 1))
+      sleep 1.5 # Limit resource usage
+      DOCKER_CMD="docker run -it --rm \
+        --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
+        --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
+        --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT \
+        --env DRONE_TYPE=$drone_type \
+        --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
+        --env SIMULATED_TIME=true \
+        --env SUBNET_PREFIX=$SUBNET_PREFIX \
+        --net=aas-network --ip=${SUBNET_PREFIX}.1.$DRONE_ID \
+        --privileged \
+        --name aircraft-container_$DRONE_ID"
+      # Add WSL-specific options and complete the command
+      if [[ "$DESK_ENV" == "wsl" ]]; then
+        DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
+      fi
+      DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
+      calculate_terminal_position $DRONE_ID
+      xterm "${XTERM_CONFIG_ARGS[@]}" -title "$type_label $DRONE_ID" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
+    done
+  }
+  # Launch the Quad containers
+  launch_aircraft_containers "quad" $NUM_QUADS "Quad"
+  # Launch the VTOL containers
+  launch_aircraft_containers "vtol" $NUM_VTOLS "VTOL"
 fi
 
 echo "Fly, my pretties, fly!"
