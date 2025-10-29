@@ -348,8 +348,10 @@ Once done, detach Tmux (and remove the containers) with `Ctrl + b`, then `d`
 
 - Dual network or subnet implementation for HITL
 - Search: .1.99 / .1.98 / .1. / 42.42 / 192.168
-- Deploy build / run for ground (infer from architecture)
-- Update HITL instructions
+- Test dev mode and update README
+- Test on WSL
+- Deploy build / run for ground (infer from architecture) / update structure
+- Update HITL instructions and rationale deploy focus
 - Restore optional QGC in sim container but lose oracle and zenoh (tracks, state sharing)
 
 ## TODOs
