@@ -302,7 +302,7 @@ Set up a LAN with netmask `255.255.0.0` and an arbitrary `SIM_SUBNET` (e.g. `10.
 - One simulation computer, with IP `[SIM_SUBNET].90.100`
 - `N` Jetson Baseboards with IPs `[SIM_SUBNET].90.1`, ..., `[SIM_SUBNET].90.N`
 
-**Optionally** set up a second LAN or [MANET](https://doodlelabs.com/product/nano/) with netmask `255.255.0.0` and arbitrary `AIR_SUBNET` (e.g. `10.22`) between:
+**Optionally**, set up a second LAN or [MANET](https://doodlelabs.com/product/nano/) with netmask `255.255.0.0` and `AIR_SUBNET` (e.g. `10.22`) between:
 
 - One ground computer, with IP `[AIR_SUBNET].90.101`
 - `N` Jetson Baseboards with IPs `[AIR_SUBNET].90.1`, ..., `[AIR_SUBNET].90.N`
