@@ -47,7 +47,7 @@ RUN rosdep init
 ################################################################################
 # Stage 2 - 8+GB ###############################################################
 ################################################################################
-FROM ros2-image AS ros2-qgc-image
+FROM ros2-image AS ros2-qgc-zenoh-image
 
 # QGroundControl (as qgcuser)
 # Based on https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html
@@ -68,10 +68,17 @@ RUN wget https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl-x86_64.AppI
     rm /QGroundControl-x86_64.AppImage
 # Run with $ gosu qgcuser /squashfs-root/AppRun
 
+# Install Zenoh
+RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null
+RUN apt-get update && \
+    apt-get install -y zenoh-bridge-ros2dds \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+
 ################################################################################
 # Stage 3 - 8+GB ###############################################################
 ################################################################################
-FROM ros2-qgc-image AS ros2-qgc-gst-pymavlink-zenoh-image
+FROM ros2-qgc-zenoh-image AS ros2-qgc-zenoh-gst-pymavlink-image
 
 # Add GStreamer packages to stream the cameras to the aircraft containers
 RUN apt update \
@@ -86,17 +93,10 @@ RUN pip3 install --no-cache-dir --upgrade pip \
     && pip3 install --no-cache-dir --resume-retries 5 pymavlink pyserial
 # Check with $ python3 -c "import pymavlink; print(pymavlink.__version__)"
 
-# Install Zenoh
-RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null
-RUN apt-get update && \
-    apt-get install -y zenoh-bridge-ros2dds \
-    && apt clean \
-    && rm -rf /var/lib/apt/lists/*
-
 ################################################################################
 # Stage 4 - 8+GB ###############################################################
 ################################################################################
-FROM ros2-qgc-gst-pymavlink-zenoh-image AS ground-dev-image
+FROM ros2-qgc-zenoh-gst-pymavlink-image AS ground-dev-image
 
 # Install wmctrl and xrandr to resize QGC window
 RUN apt update \

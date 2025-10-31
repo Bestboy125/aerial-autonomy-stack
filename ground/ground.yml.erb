@@ -1,12 +1,9 @@
+<% headless = ENV.fetch('HEADLESS', 'false') %>
+
 <% num_quads = ENV.fetch('NUM_QUADS', 1).to_i %>
 <% num_vtols = ENV.fetch('NUM_VTOLS', 0).to_i %>
-<% headless = ENV.fetch('HEADLESS', 'false') %>
+
 <% simulated_time = ENV.fetch('SIMULATED_TIME', 'false') %>
-<% sim_subnet = ENV.fetch('SIM_SUBNET', '10.42') %>
-<% air_subnet = ENV.fetch('AIR_SUBNET', '10.22') %>
-<% sim_id = ENV.fetch('SIM_ID', '100') %>
-<% ground_id = ENV.fetch('GROUND_ID', '101') %>
-<% hitl = ENV.fetch('HITL', 'false') %>
 
 name: ground
 
@@ -20,7 +17,7 @@ windows:
   - ground_system_over_zenoh:
       layout: even-vertical
       panes:
-        - ros2 run ground_system oracle --num-drones <%=  num_quads + num_vtols %> --ip <%= sim_subnet %>.90.<%= ground_id %> --base-port 14540 --rate 1.0 <% if simulated_time == 'true' %> --ros-args -p use_sim_time:=True<% end %>
+        - ros2 run ground_system oracle --num-drones <%=  num_quads + num_vtols %> --base-port 14540 --rate 1.0 <% if simulated_time == 'true' %> --ros-args -p use_sim_time:=True<% end %>
         - zenoh-bridge-ros2dds -c /aas/ground_resources/comms/zenoh_config_ground.json5
 
   - qgc:

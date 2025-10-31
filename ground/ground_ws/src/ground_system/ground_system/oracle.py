@@ -91,7 +91,7 @@ class OracleNode(Node):
 def main(args=None):
     parser = argparse.ArgumentParser(description='Oracle Node')
     parser.add_argument('--num-drones', type=int, required=True, help='Number of drones to listen for.')
-    parser.add_argument('--ip', type=str, default='127.0.0.1', help='IP address to listen on.')
+    parser.add_argument('--ip', type=str, default='0.0.0.0', help='IP address to listen on.')
     parser.add_argument('--base-port', type=int, default=14540, help='Base UDP port to start listening from.')
     parser.add_argument('--rate', type=float, default=10.0, help='Publishing rate in Hz.')
     

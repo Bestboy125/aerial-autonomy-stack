@@ -1,16 +1,19 @@
-<% drone_type = ENV.fetch('DRONE_TYPE', 'quad') %>
 <% autopilot = ENV.fetch('AUTOPILOT', 'px4') %>
-<% drone_id = ENV.fetch('DRONE_ID', 1).to_i %>
 <% headless = ENV.fetch('HEADLESS', 'true') %>
 <% camera = ENV.fetch('CAMERA', 'true') %>
 <% lidar = ENV.fetch('LIDAR', 'true') %>
-<% simulated_time = ENV.fetch('SIMULATED_TIME', 'false') %>
-<% record_rosbag = ENV.fetch('RECORD_ROSBAG', 'false') %>
+
 <% sim_subnet = ENV.fetch('SIM_SUBNET', '10.42') %>
 <% air_subnet = ENV.fetch('AIR_SUBNET', '10.22') %>
 <% sim_id = ENV.fetch('SIM_ID', '100') %>
 <% ground_id = ENV.fetch('GROUND_ID', '101') %>
+
+<% drone_type = ENV.fetch('DRONE_TYPE', 'quad') %>
+<% drone_id = ENV.fetch('DRONE_ID', 1).to_i %>
+
 <% hitl = ENV.fetch('HITL', 'false') %>
+<% simulated_time = ENV.fetch('SIMULATED_TIME', 'false') %>
+<% record_rosbag = ENV.fetch('RECORD_ROSBAG', 'false') %>
 
 name: drone
 

@@ -22,6 +22,10 @@ if [[ -n "$NUM_DRONES" && "$NUM_DRONES" =~ ^[0-9]+$ ]]; then
         done
 
     elif [ "$AUTOPILOT" == "px4" ]; then
+        # Get the container's IP address on aas-sim-network and extract the last octet
+        SIM_SUBNET_IP=$(hostname -I | grep -oE "${SIM_SUBNET}\.[0-9]+\.[0-9]+" | head -n 1)
+        SIM_ID=$(echo "$SIM_SUBNET_IP" | awk -F'.' '{print $NF}')
+
         cd /aas/github_apps/flight_review/
         /px4rf-env/bin/python3 ./app/setup_db.py
         /px4rf-env/bin/python3 ./app/serve.py --allow-websocket-origin=${SIM_SUBNET}.90.${SIM_ID}:5006 2>/dev/null & # Starting flight_review (suppress "Address already in use" when running this script more than once)

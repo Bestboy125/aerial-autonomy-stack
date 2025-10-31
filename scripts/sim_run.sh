@@ -4,18 +4,21 @@
 set -e
 
 # Set up the simulation
-NUM_QUADS="${NUM_QUADS:-1}" # Number of quadcopters (default = 1)
-NUM_VTOLS="${NUM_VTOLS:-0}" # Number of VTOLs (default = 0)
 AUTOPILOT="${AUTOPILOT:-px4}" # Options: px4 (default), ardupilot
-WORLD="${WORLD:-impalpable_greyness}" # Options: impalpable_greyness (default), apple_orchard, shibuya_crossing, swiss_town
 HEADLESS="${HEADLESS:-false}" # Options: true, false (default)
 CAMERA="${CAMERA:-true}" # Options: true (default), false
 LIDAR="${LIDAR:-true}" # Options: true (default), false 
 MODE="${MODE:-}" # Options: empty (default), dev, ...
+#
 SIM_SUBNET="${SIM_SUBNET:-10.42}" # Simulation subnet (default = 10.42)
 AIR_SUBNET="${AIR_SUBNET:-10.22}" # Inter-vehicle subnet (default = 10.22)
 SIM_ID="${SIM_ID:-100}" # Last byte of the simulation container IP (default = 100)
 GROUND_ID="${GROUND_ID:-101}" # Last byte of the simulation container IP (default = 101)
+#
+NUM_QUADS="${NUM_QUADS:-1}" # Number of quadcopters (default = 1)
+NUM_VTOLS="${NUM_VTOLS:-0}" # Number of VTOLs (default = 0)
+WORLD="${WORLD:-impalpable_greyness}" # Options: impalpable_greyness (default), apple_orchard, shibuya_crossing, swiss_town
+#
 HITL="${HITL:-false}" # Options: true, false (default)
 
 # Detect the environment (Ubuntu/GNOME, WSL, etc.)
@@ -140,12 +143,11 @@ XTERM_CONFIG_ARGS=(
 DOCKER_CMD="docker run -it --rm \
   --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
   --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
-  --env ROS_DOMAIN_ID=$SIM_ID --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
-  --env NUM_QUADS=$NUM_QUADS --env NUM_VTOLS=$NUM_VTOLS \
-  --env WORLD=$WORLD --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
+  --env AUTOPILOT=$AUTOPILOT --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
+  --env NUM_QUADS=$NUM_QUADS --env NUM_VTOLS=$NUM_VTOLS --env WORLD=$WORLD \
   --env SIMULATED_TIME=true \
-  --env SIM_SUBNET=$SIM_SUBNET \
-  --env SIM_ID=$SIM_ID --env GROUND_ID=$GROUND_ID \
+  --env SIM_SUBNET=$SIM_SUBNET --env GROUND_ID=$GROUND_ID \
+  --env ROS_DOMAIN_ID=$SIM_ID \
   --privileged \
   --name simulation-container"
 # Configure network for HITL or SITL
@@ -168,19 +170,13 @@ if [[ "$HITL" == "false" ]]; then
   DOCKER_CMD="docker run -it --rm \
     --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
     --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
-    --env ROS_DOMAIN_ID=$GROUND_ID \
+    --env HEADLESS=$HEADLESS \
     --env NUM_QUADS=$NUM_QUADS --env NUM_VTOLS=$NUM_VTOLS \
-    --env HEADLESS=$HEADLESS --env SIMULATED_TIME=true \
-    --env SIM_SUBNET=$SIM_SUBNET \
-    --env SIM_ID=$SIM_ID --env GROUND_ID=$GROUND_ID \
+    --env SIMULATED_TIME=true \
+    --env ROS_DOMAIN_ID=$GROUND_ID \
+    --net=aas-sim-network --ip=${SIM_SUBNET}.90.${GROUND_ID} \
     --privileged \
     --name ground-container"
-  # Configure network for HITL or SITL
-  if [[ "$HITL" == "true" ]]; then
-    DOCKER_CMD="$DOCKER_CMD --net=host"
-  else
-    DOCKER_CMD="$DOCKER_CMD --net=aas-sim-network --ip=${SIM_SUBNET}.90.${GROUND_ID}"
-  fi
   # Add WSL-specific options and complete the command
   if [[ "$DESK_ENV" == "wsl" ]]; then
     DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
@@ -202,12 +198,11 @@ if [[ "$HITL" == "false" ]]; then
       DOCKER_CMD="docker run -it --rm \
         --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
         --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
-        --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT \
-        --env DRONE_TYPE=$drone_type \
-        --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
+        --env AUTOPILOT=$AUTOPILOT --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
+        --env DRONE_TYPE=$drone_type --env DRONE_ID=$DRONE_ID \
         --env SIMULATED_TIME=true \
-        --env SIM_SUBNET=$SIM_SUBNET \
-        --env SIM_ID=$SIM_ID --env GROUND_ID=$GROUND_ID \
+        --env SIM_SUBNET=$SIM_SUBNET --env AIR_SUBNET=$AIR_SUBNET --env SIM_ID=$SIM_ID --env GROUND_ID=$GROUND_ID \
+        --env ROS_DOMAIN_ID=$DRONE_ID \
         --net=aas-sim-network --ip=${SIM_SUBNET}.90.$DRONE_ID \
         --privileged \
         --name aircraft-container_$DRONE_ID"
