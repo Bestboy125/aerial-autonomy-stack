@@ -312,25 +312,29 @@ Set up a LAN with netmask `255.255.0.0` and an arbitrary `SIM_SUBNET` (e.g. `10.
 First, start all aircraft containers, one on each Jetson (e.g. *via* SSH):
 ```sh
 # On the Jetson with IP ending in 90.1
-HITL=true GND_CONTAINER=false DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SIM_SUBNET=10.42 ./deploy_run.sh        # Add HEADLESS=false if a screen is connected to the Jetson
+HITL=true GND_CONTAINER=false DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SIM_SUBNET=10.42 AIR_SUBNET=10.22 ./deploy_run.sh        # Add HEADLESS=false if a screen is connected to the Jetson
 ```
 
 ```sh
 # On the Jetson with IP ending in 90.2
-HITL=true GND_CONTAINER=false DRONE_ID=2 DRONE_TYPE=quad AUTOPILOT=px4 SIM_SUBNET=10.42 ./deploy_run.sh
+HITL=true GND_CONTAINER=false DRONE_ID=2 DRONE_TYPE=quad AUTOPILOT=px4 SIM_SUBNET=10.42 AIR_SUBNET=10.22 ./deploy_run.sh
 ```
 
 Finally, on the simulation computer:
 ```sh
 # Computer with IP ending in 90.100
-HITL=true GND_CONTAINER=false NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SIM_SUBNET=10.42 ./sim_run.sh
+HITL=true GND_CONTAINER=false NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SIM_SUBNET=10.42 AIR_SUBNET=10.22 ./sim_run.sh
 ```
 
 <!-- 
 To enable the Zenoh bridge between aircraft containers over the `AIR_SUBNET`, on the ground computer:
 ```sh
 # TODO extend deploy_run.sh for ground-container
+HITL=true SIM_SUBNET=10.42 AIR_SUBNET=10.22 ./sim_run.sh
 ``` 
+
+NOTE: running the previous 3 commands with GND_CONTAINER=false forces the Zenoh bridge over the `SIM_SUBNET` instead
+
 -->
 
 Once done, detach Tmux (and remove the containers) with `Ctrl + b`, then `d`
