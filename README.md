@@ -95,7 +95,7 @@ Check the flight logs in the `Simulation`'s Xterm terminal:
 /aas/simulation_resources/patches/plot_logs.sh                                                # Analyze the flight logs at http://10.42.90.100:5006/browse or in MAVExplorer
 ```
 
-> [!IMPORTANT]
+> [!TIP]
 > <details>
 > <summary>Familiarize with <b>Tmux (and Docker) shortcuts</b> to navigate the windows/panes in Xterm <i>(click to expand)</i></summary>
 >
@@ -286,49 +286,81 @@ DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false ./deploy_run.sh
 ### HITL Simulation
 
 > [!NOTE]
-> Currently, HITL covers the Jetson compute<!-- and the inter-vehicle network -->, support for Pixhawk is work-in-progress
+> Currently, HITL covers the Jetson compute, support for Pixhawk is work-in-progress
 
 Set up a LAN with netmask `255.255.0.0` and an arbitrary `SIM_SUBNET` (e.g. `172.30`) between:
 
 - One simulation computer, with IP `[SIM_SUBNET].90.100`
 - `N` Jetson Baseboards with IPs `[SIM_SUBNET].90.1`, ..., `[SIM_SUBNET].90.N`
 
-<!-- 
-**Optionally**, set up a second LAN or [MANET](https://doodlelabs.com/product/nano/) with netmask `255.255.0.0` and `AIR_SUBNET` (e.g. `172.31`) between:
-
-- One ground computer, with IP `[AIR_SUBNET].90.101`
-- `N` Jetson Baseboards with IPs `[AIR_SUBNET].90.1`, ..., `[AIR_SUBNET].90.N` 
--->
-
 First, start all aircraft containers, one on each Jetson (e.g. *via* SSH):
 ```sh
 # On the Jetson with IP ending in 90.1
-HITL=true GND_CONTAINER=false DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SIM_SUBNET=172.30 AIR_SUBNET=172.31 ./deploy_run.sh        # Add HEADLESS=false if a screen is connected to the Jetson
+HITL=true GND_CONTAINER=false DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SIM_SUBNET=172.30 ./deploy_run.sh        # Add HEADLESS=false if a screen is connected to the Jetson
 ```
 
 ```sh
 # On the Jetson with IP ending in 90.2
-HITL=true GND_CONTAINER=false DRONE_ID=2 DRONE_TYPE=quad AUTOPILOT=px4 SIM_SUBNET=172.30 AIR_SUBNET=172.31 ./deploy_run.sh
+HITL=true GND_CONTAINER=false DRONE_ID=2 DRONE_TYPE=quad AUTOPILOT=px4 SIM_SUBNET=172.30 ./deploy_run.sh
 ```
 
 Finally, on the simulation computer:
 ```sh
 # Computer with IP ending in 90.100
-HITL=true GND_CONTAINER=false NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SIM_SUBNET=172.30 AIR_SUBNET=172.31 ./sim_run.sh
+HITL=true GND_CONTAINER=false NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SIM_SUBNET=172.30 ./sim_run.sh
 ```
 
+Once done, detach Tmux (and remove the containers) with `Ctrl + b`, then `d`
+
 <!-- 
-To enable the Zenoh bridge between aircraft containers over the `AIR_SUBNET`, on the ground computer:
+
+> [!NOTE]
+> Currently, HITL covers the Jetson compute and the inter-vehicle network, support for Pixhawk is work-in-progress
+>
+> Use USB2.0 ASIX Ethernet adapters to add multiple network interfaces to the Jetson baseboards
+
+Set up a LAN with netmask `255.255.0.0` and an arbitrary `SIM_SUBNET` (e.g. `172.30`) between:
+
+- One **simulation** computer, with IP `[SIM_SUBNET].90.100`
+- One **ground** computer, with IP `[SIM_SUBNET].90.101`
+- `N` Jetson Baseboards with IPs `[SIM_SUBNET].90.1`, ..., `[SIM_SUBNET].90.N`
+
+
+**Optionally**, set up a second LAN or [MANET](https://doodlelabs.com/product/nano/) with netmask `255.255.0.0` and `AIR_SUBNET` (e.g. `172.31`) between:
+
+- One **ground** computer, with IP `[AIR_SUBNET].90.101`
+- `N` Jetson Baseboards with IPs `[AIR_SUBNET].90.1`, ..., `[AIR_SUBNET].90.N` 
+
+
+First, start all aircraft containers, one on each Jetson (e.g. *via* SSH):
 ```sh
-# TODO extend deploy_run.sh for ground-container
-HITL=true SIM_SUBNET=172.30 AIR_SUBNET=172.31 ./sim_run.sh
-``` 
+# On the Jetson with IP ending in 90.1
+HITL=true DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SIM_SUBNET=172.30 AIR_SUBNET=172.31 ./deploy_run.sh        # Add HEADLESS=false if a screen is connected to the Jetson
+```
 
-NOTE: running the previous 3 commands with GND_CONTAINER=false forces the Zenoh bridge over the `SIM_SUBNET` instead
+```sh
+# On the Jetson with IP ending in 90.2
+HITL=true DRONE_ID=2 DRONE_TYPE=quad AUTOPILOT=px4 SIM_SUBNET=172.30 AIR_SUBNET=172.31 ./deploy_run.sh
+```
 
--->
+Enable the Zenoh bridge between aircraft using the `AIR_SUBNET`, on the ground computer:
+```sh
+# Computer with IP ending in 90.101
+HITL=true GROUND=true HEADLESS=false NUM_QUADS=2 NUM_VTOLS=0 SIM_SUBNET=172.30 AIR_SUBNET=172.31 ./deploy_run.sh
+```
+
+Finally, on the simulation computer:
+```sh
+# Computer with IP ending in 90.100
+HITL=true NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SIM_SUBNET=172.30 AIR_SUBNET=172.31 ./sim_run.sh
+```
+
+> [!NOTE]
+> Running all the previous Jetson and simulation computer commands with `GND_CONTAINER=false` forces the Zenoh bridge over the `SIM_SUBNET` instead, removing the need for the `AIR_SUBNET` and the ground computer with IP ending in `90.101`
 
 Once done, detach Tmux (and remove the containers) with `Ctrl + b`, then `d`
+
+-->
 
 ---
 > You've done a man's job, sir. I guess you're through, huh?

@@ -115,7 +115,7 @@ windows:
           mavproxy.py --state-basedir=/aas/mavproxy_<%= drone_id %>/ground --master=udp:127.0.0.1:<%= 14540 + sitl_instance %> 
           --out=udp:<%= "#{sim_subnet}.90.#{ground_id}" %>:<%= 14540 + sitl_instance %> --streamrate -1
         - >
-          sleep 1 && mavproxy.py --state-basedir=/aas/mavproxy_<%= drone_id %>/qgc --master=udp:127.0.0.1:<%= 14550 + sitl_instance %> 
+          sleep 3 && mavproxy.py --state-basedir=/aas/mavproxy_<%= drone_id %>/qgc --master=udp:127.0.0.1:<%= 14550 + sitl_instance %> 
           --out=udp:<%= "#{sim_subnet}.90.#{ground_id}" %>:<%= 14550 + sitl_instance %> --streamrate -1
         <% end %>
         <% if lidar %>
@@ -126,7 +126,7 @@ windows:
         <% end %>
         <% if camera %>
         - >
-          sleep <%= drone_id * 3 %> && 
+          sleep <%= drone_id * 5 %> && 
           python3 /aas/simulation_resources/comms/gz_to_gst_image_bridge.py 
           --gz_topic /world/<%= world %>/model/<%= model_name %>/<%= sensor_path %>model/simple_camera/link/mono_cam/base_link/sensor/imager/image
           --ip <%= "#{sim_subnet}.90.#{drone_id}" %> --port 5600

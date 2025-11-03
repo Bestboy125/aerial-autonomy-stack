@@ -21,6 +21,23 @@ DEV="${DEV:false}" # Options: true, false (default)
 HITL="${HITL:-false}" # Options: true, false (default)
 GND_CONTAINER="${GND_CONTAINER:-true}" # Options: true (default), false
 
+GROUND="${GROUND:-false}" # Options: true, false (default)
+if [[ "$GROUND" == "true" ]]; then
+  # This is a bit hacky, but allows to use the deploy_run.sh script for the ground container
+  docker run -it --rm \
+    --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
+    --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
+    --env HEADLESS=$HEADLESS \
+    --env NUM_QUADS=$NUM_QUADS --env NUM_VTOLS=$NUM_VTOLS \
+    --env SIMULATED_TIME=$HITL \
+    --env ROS_DOMAIN_ID=$GROUND_ID \
+    --net=host \
+    --privileged \
+    --name ground-container \
+    ground-image
+  exit 0
+fi
+
 # In dev mode, resources and workspaces are mounted from the host
 if [[ "$DEV" == "true" ]]; then
   SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)

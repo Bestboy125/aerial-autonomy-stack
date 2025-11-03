@@ -129,7 +129,7 @@ xterm "${XTERM_CONFIG_ARGS[@]}" -title "Simulation" -fa Monospace -fs $FONT_SIZE
 if [[ "$HITL" == "false" ]]; then
 
   if [[ "$GND_CONTAINER" == "true" ]]; then
-    sleep 0.5 # Limit resource usage
+    sleep 1.0 # Limit resource usage
     # Launch the ground container
     DOCKER_CMD="docker run -it --rm \
       --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
