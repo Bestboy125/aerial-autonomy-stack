@@ -77,7 +77,7 @@ cd ~/git/aerial-autonomy-stack/scripts
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh    # Start a simulation, check the script for more options (note: ArduPilot SITL takes ~40s to be ready to arm)
+AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh                           # Start a simulation, check the script for more options (note: ArduPilot SITL takes ~40s to be ready to arm)
 ```
 
 ![interface](https://github.com/user-attachments/assets/71b07851-42dd-45d4-a9f5-6b5b00cd85bc)
@@ -89,12 +89,12 @@ AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh    # Start a
 
 In one of the `QUAD` or `VTOL` Xterm terminals:
 ```sh
-ros2 run mission mission --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true        # This mission is a simple takeoff, followed by an orbit, and landing for any vehicle
+ros2 run mission mission --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true            # This mission is a simple takeoff, followed by an orbit, and landing for any vehicle
 ```
 
-Finally, in the `Simulation`'s Xterm terminal:
+Check the flight logs in the `Simulation`'s Xterm terminal:
 ```sh
-/aas/simulation_resources/patches/plot_logs.sh                         # Analyze the flight logs at http://10.42.90.100:5006/browse or in MAVExplorer
+/aas/simulation_resources/patches/plot_logs.sh                                                # Analyze the flight logs at http://10.42.90.100:5006/browse or in MAVExplorer
 ```
 
 > [!TIP]
@@ -103,13 +103,13 @@ Finally, in the `Simulation`'s Xterm terminal:
 >
 > Tmux cheatsheet:
 > ```sh
-> Ctrl + b, then n, p         # Move between Tmux windows 
-> Ctrl + b, then [arrow keys] # Move between Tmux panes
-> Ctrl + [, then [arrow keys] # Enter copy mode (select, scroll back)
-> q                           # Exit copy mode
-> Ctrl + b, then "            # Split a Tmux window horizontally
-> Ctrl + b, then %            # Split a Tmux window vertically
-> Ctrl + b, then d            # Detach Tmux
+> Ctrl + b, then n, p                   # Move between Tmux windows 
+> Ctrl + b, then [arrow keys]           # Move between Tmux panes
+> Ctrl + [, then [arrow keys]           # Enter copy mode (select, scroll back)
+> q                                     # Exit copy mode
+> Ctrl + b, then "                      # Split a Tmux window horizontally
+> Ctrl + b, then %                      # Split a Tmux window vertically
+> Ctrl + b, then d                      # Detach Tmux
 > ```
 > ```sh
 > tmux list-sessions                    # List all sessions
@@ -148,7 +148,7 @@ To advance the simulation in **discrete time steps**, e.g. 1s, from a terminal o
 ```sh
 docker exec simulation-container bash -c " \
   gz service -s /world/\$WORLD/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean \
-  --req 'multi_step: 250, pause: true'"                                # Adjust multi_step based on the value of max_step_size in the world's .sdf (defaults: 250 for PX4, 1000 for ArduPilot)
+  --req 'multi_step: 250, pause: true'"                                                       # Adjust multi_step based on the value of max_step_size in the world's .sdf (defaults: 250 for PX4, 1000 for ArduPilot)
 ```
 
 To add or disable [**wind effects**](https://github.com/gazebosim/gz-sim/blob/gz-sim10/examples/worlds/wind.sdf), from a terminal on the host, run:
@@ -156,13 +156,13 @@ To add or disable [**wind effects**](https://github.com/gazebosim/gz-sim/blob/gz
 ```sh
 docker exec simulation-container bash -c " \
   gz topic -t /world/\$WORLD/wind/ -m gz.msgs.Wind \
-  -p 'linear_velocity: {x: 0.0 y: 3.0}, enable_wind: true'"            # Positive X blows from the West, positive Y blows from the South
+  -p 'linear_velocity: {x: 0.0 y: 3.0}, enable_wind: true'"                                   # Positive X blows from the West, positive Y blows from the South
 ```
 
 ```sh
 docker exec simulation-container bash -c " \
   gz topic -t /world/\$WORLD/wind/ -m gz.msgs.Wind \
-  -p 'enable_wind: false'"                                             # Disable WindEffects
+  -p 'enable_wind: false'"                                                                    # Disable WindEffects
 ```
 
 > [!TIP]
@@ -175,48 +175,48 @@ docker exec simulation-container bash -c " \
 > ├── aircraft
 > │   ├── aircraft_ws
 > │   │   └── src
-> │   │       ├── autopilot_interface # Ardupilot/PX4 high-level actions (Takeoff, Orbit, Offboard, Land)
-> │   │       ├── mission             # Orchestrator of the actions in `autopilot_interface` 
-> │   │       ├── offboard_control    # Low-level references for the Offboard action in `autopilot_interface` 
-> │   │       ├── state_sharing       # Publisher of the `/state_sharing_drone_N` topic broadcasted by Zenoh
-> │   │       └── yolo_inference      # GStreamer video acquisition and publisher of YOLO bounding boxes
+> │   │       ├── autopilot_interface                      # Ardupilot/PX4 high-level actions (Takeoff, Orbit, Offboard, Land)
+> │   │       ├── mission                                  # Orchestrator of the actions in `autopilot_interface` 
+> │   │       ├── offboard_control                         # Low-level references for the Offboard action in `autopilot_interface` 
+> │   │       ├── state_sharing                            # Publisher of the `/state_sharing_drone_N` topic broadcasted by Zenoh
+> │   │       └── yolo_inference                           # GStreamer video acquisition and publisher of YOLO bounding boxes
 > │   │
-> │   └── aircraft.yml.erb            # Aircraft docker tmux entrypoint
+> │   └── aircraft.yml.erb                                 # Aircraft docker tmux entrypoint
 > │
 > ├── ground
 > │   ├── ground_ws
 > │   │   └── src
-> │   │       └── ground_system       # Publisher of topic `/tracks` broadcasted by Zenoh
+> │   │       └── ground_system                            # Publisher of topic `/tracks` broadcasted by Zenoh
 > │   │
-> │   └── ground.yml.erb              # Ground docker tmux entrypoint
+> │   └── ground.yml.erb                                   # Ground docker tmux entrypoint
 > │
 > ├── scripts
 > │   ├── docker
-> │   │   ├── Dockerfile.aircraft     # Docker image for aircraft simulation and deployment
-> │   │   └── Dockerfile.simulation   # Docker image for SITL and HITL simulation
+> │   │   ├── Dockerfile.aircraft                          # Docker image for aircraft simulation and deployment
+> │   │   └── Dockerfile.simulation                        # Docker image for SITL and HITL simulation
 > │   │
-> │   ├── deploy_build.sh             # Build `Dockerfile.aircraft` for arm64/Orin
-> │   ├── deploy_run.sh               # Start the aircraft docker on arm64/Orin (deploy or HITL)
+> │   ├── deploy_build.sh                                  # Build `Dockerfile.aircraft` for arm64/Orin
+> │   ├── deploy_run.sh                                    # Start the aircraft docker on arm64/Orin (deploy or HITL)
 > │   │
-> │   ├── sim_build.sh                # Build both dockerfiles for amd64/simulation
-> │   └── sim_run.sh                  # Start the simulation (SITL or HITL)
+> │   ├── sim_build.sh                                     # Build both dockerfiles for amd64/simulation
+> │   └── sim_run.sh                                       # Start the simulation (SITL or HITL)
 > │
 > └── simulation
 >     ├── simulation_resources
 >     │   ├── aircraft_models
->     │   │   ├── alti_transition_quad # ArduPilot VTOL
->     │   │   ├── iris_with_ardupilot  # ArduPilot quad
+>     │   │   ├── alti_transition_quad                     # ArduPilot VTOL
+>     │   │   ├── iris_with_ardupilot                      # ArduPilot quad
 >     │   │   ├── sensor_camera
 >     │   │   ├── sensor_lidar
->     │   │   ├── standard_vtol        # PX4 VTOL
->     │   │   └── x500                 # PX4 quad
+>     │   │   ├── standard_vtol                            # PX4 VTOL
+>     │   │   └── x500                                     # PX4 quad
 >     │   └── simulation_worlds
 >     │       ├── apple_orchard.sdf
 >     │       ├── impalpable_greyness.sdf
 >     │       ├── shibuya_crossing.sdf
 >     │       └── swiss_town.sdf
 >     │
->     └── simulation.yml.erb           # Simulation docker tmux entrypoint
+>     └── simulation.yml.erb                               # Simulation docker tmux entrypoint
 > ```
 > </details>
 >
@@ -227,13 +227,13 @@ docker exec simulation-container bash -c " \
 > 
 > ```sh
 > cd ~/git/aerial-autonomy-stack/scripts
-> DEV=true ./sim_run.sh                               # Starts one simulation-image, one ground-image, and one aircraft-image where the *_resources/ and *_ws/src/ folders are mounted from the host
+> DEV=true ./sim_run.sh                                                                       # Starts one simulation-image, one ground-image, and one aircraft-image where the *_resources/ and *_ws/src/ folders are mounted from the host
 > ```
 > 
 > To make changes **on the host** and build them **in the aircraft and/or ground container**:
 > 
 > ```sh
-> cd /aas/aircraft_ws/                                # Or cd /aas/ground_ws/
+> cd /aas/aircraft_ws/                                                                        # Or cd /aas/ground_ws/
 > colcon build --symlink-install
 > ```
 > 
@@ -273,7 +273,7 @@ mkdir -p ~/git && cd ~/git
 git clone https://github.com/JacopoPan/aerial-autonomy-stack.git
 
 cd ~/git/aerial-autonomy-stack/scripts
-./deploy_build.sh    # Build for arm64, on Jetson Orin NX the first build takes ~1h, mostly to build onnxruntime-gpu with TensorRT support from source
+./deploy_build.sh                                                                             # Build for arm64, on Jetson Orin NX the first build takes ~1h, mostly to build onnxruntime-gpu with TensorRT support from source
 ```
 
 > Latest weekly build with `deploy_build.sh`:
