@@ -19,7 +19,7 @@ def on_new_gz_frame(msg: Image):
 
     if appsrc.get_property('caps') is None:
         print(f"First frame received. Configuring GStreamer pipeline for {msg.width}x{msg.height}...")
-        caps_str = f"video/x-raw,format=RGB,width={msg.width},height={msg.height},framerate=30/1"
+        caps_str = f"video/x-raw,format=RGB,width={msg.width},height={msg.height},framerate={args.framerate}/1"
         caps = Gst.Caps.from_string(caps_str)
         appsrc.set_property('caps', caps)
 
@@ -37,10 +37,11 @@ def check_nvidia_encoder():
     return False
 
 def main():
-    global pipeline, appsrc, main_loop
+    global pipeline, appsrc, main_loop, args
 
     parser = argparse.ArgumentParser(description="Bridge a Gazebo camera topic to a GStreamer UDP stream.")
     parser.add_argument('--gz_topic', help="Gazebo Image topic to subscribe to.")
+    parser.add_argument('--framerate', type=int, default=10, help="Framerate of the camera sensor (default: 10).")
     parser.add_argument('--ip', help="Destination host for the GStreamer stream.")
     parser.add_argument('--port', type=int, help="Destination port for the GStreamer stream (see pipelines in yolo_inference_node.py).")
     args = parser.parse_args()
@@ -52,7 +53,7 @@ def main():
         pipeline_str = (
             "appsrc name=py_source ! "
             "videoconvert ! "
-            "nvh264enc preset=low-latency-hq ! " # Use the NVIDIA H.264 encoder
+            "nvh264enc preset=low-latency-hq zerolatency=true ! " # Use the NVIDIA H.264 encoder
             "rtph264pay ! "
             f"udpsink host={args.ip} port={args.port}"
         )
@@ -69,13 +70,19 @@ def main():
 
     pipeline = Gst.parse_launch(pipeline_str)
     appsrc = pipeline.get_by_name('py_source')
+    appsrc.set_property('max-bytes', 0) # Disable byte limit
+    appsrc.set_property('max-buffers', 2) # Keep only 2 frames max
+    appsrc.set_property('leaky-type', 2) # Drop old frames
 
     node = Node()
     if not node.subscribe(Image, args.gz_topic, on_new_gz_frame):
         print(f"Error subscribing to topic [{args.gz_topic}]. Ensure Gazebo is running and the topic exists.")
         return
 
-    pipeline.set_state(Gst.State.PLAYING)
+    ret = pipeline.set_state(Gst.State.PLAYING)
+    if ret == Gst.StateChangeReturn.FAILURE:
+        print("ERROR: Unable to set pipeline to PLAYING state")
+        return
     print(f"GStreamer pipeline started. Streaming to udp://{args.ip}:{args.port}...")
     print(f"Subscribed to Gazebo topic [{args.gz_topic}]. Waiting for frames...")
 
