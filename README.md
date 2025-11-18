@@ -67,7 +67,7 @@ cd ~/git/aerial-autonomy-stack/scripts
 ![interface](https://github.com/user-attachments/assets/71b07851-42dd-45d4-a9f5-6b5b00cd85bc)
 
 > [!NOTE]
-> On a low-mid range laptop—i7-11 with 16GB RAM and RTX 3060—AAS simulates three PX4 quads with camera and LiDAR at **~150% real-time-factor** with flag `AS_FAST_AS_POSSIBLE=true` (note that ArduPilot faster physics updates and more complex worlds have higher computational demands). Make sure you run `sudo prime-select nvidia` and rebooted to effectively leverage GPU compute.
+> On a low-mid range laptop—i7-11 with 16GB RAM and RTX 3060—AAS simulates three PX4 quads with camera and LiDAR at **~2x real-time-factor** with flag `AS_FAST_AS_POSSIBLE=true` (note that ArduPilot faster physics updates and more complex worlds have higher computational demands). Make sure you run `sudo prime-select nvidia` and rebooted to effectively leverage GPU compute.
 
 ### Fly a Mission
 
