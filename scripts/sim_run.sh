@@ -91,7 +91,7 @@ calculate_terminal_position() {
 }
 
 # Setup terminal dimensions and enable Shift+Ctrl+c, Shift+Ctrl+v copy-paste in Xterm
-TERM_COLS=80
+TERM_COLS=100
 TERM_ROWS=32
 FONT_SIZE=10
 XTERM_CONFIG_ARGS=(

@@ -24,7 +24,7 @@ name: drone
 
 windows:
 
-  - debug_aircraft_<%= drone_id %>:
+  - ap_interface:
       layout: even-horizontal
       panes:
         - clear && echo "So nice to have you with us, this is the aircraft <%= drone_id %> container."
@@ -34,7 +34,7 @@ windows:
         - ros2 run autopilot_interface ardupilot_interface --ros-args -r __ns:=/Drone<%= drone_id %> <%= simulated_time ? '-p use_sim_time:=true' : '' %>
         <% end %>
 
-  - offboard_control:
+  - offboard_and_state_sharing:
       layout: even-horizontal
       panes:
         <% if autopilot == 'px4' %>
@@ -42,14 +42,25 @@ windows:
         <% elsif autopilot == 'ardupilot' %>
         - ros2 run offboard_control ardupilot_guided --ros-args -r __ns:=/Drone<%= drone_id %> <%= simulated_time ? '-p use_sim_time:=true' : '' %>
         <% end %>
+        - ros2 run state_sharing state_sharing_node --ros-args -p autopilot:=<%= autopilot %> -p drone_id:=<%= drone_id %> <%= simulated_time ? '-p use_sim_time:=true' : '' %>
+
+  - perception:
+      layout: even-horizontal
+      panes:
+        <% if camera %>
+        - ros2 run yolo_inference yolo_inference <%= headless ? '--headless' : '' %> <%= hitl ? '--hitl' : '' %> <%= simulated_time ? '--ros-args -p use_sim_time:=true' : '' %>
+        <% end %>
+        <% if lidar %>
+        - ros2 launch kiss_icp odometry.launch.py topic:=/lidar_points <%= headless ? 'visualize:=false' : '' %>
+        <% end %>
 
   <% if autopilot == 'px4' %>
-  - uxrce_dds:
+  - uxrce_dds_and_zenoh:
       layout: even-horizontal
       panes:
         - MicroXRCEAgent udp4 -p 8888
   <% elsif autopilot == 'ardupilot' %>
-  - mavros:
+  - mavros_and_zenoh:
       layout: even-horizontal
       panes:
         - >
@@ -61,25 +72,6 @@ windows:
           ros2 launch mavros apm.launch fcu_url:=/dev/ttyTHS1:921600 tgt_system:=<%= drone_id %>
           <% end %>
   <% end %>
-
-  <% if camera %>
-  - yolo:
-      layout: even-horizontal
-      panes:
-        - ros2 run yolo_inference yolo_inference <%= headless ? '--headless' : '' %> <%= hitl ? '--hitl' : '' %> <%= simulated_time ? '--ros-args -p use_sim_time:=true' : '' %>
-  <% end %>
-
-  <% if lidar %>
-  - kiss-icp:
-      layout: even-horizontal
-      panes:
-        - ros2 launch kiss_icp odometry.launch.py topic:=/lidar_points <%= headless ? 'visualize:=false' : '' %>
-  <% end %>
-
-  - state_sharing_over_zenoh:
-      layout: even-vertical
-      panes:
-        - ros2 run state_sharing state_sharing_node --ros-args -p autopilot:=<%= autopilot %> -p drone_id:=<%= drone_id %> <%= simulated_time ? '-p use_sim_time:=true' : '' %>
         - >
           erb /aas/aircraft_resources/comms/zenoh_config_air.json5.erb > /aas/aircraft_resources/comms/zenoh_config_air.json5 &&
           zenoh-bridge-ros2dds -e tcp/<%= gnd_container ? "#{air_subnet}.90.#{ground_id}" : "#{sim_subnet}.90.#{sim_id}" %>:7447 -c /aas/aircraft_resources/comms/zenoh_config_air.json5

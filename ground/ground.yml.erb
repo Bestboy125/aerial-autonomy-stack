@@ -11,20 +11,16 @@ name: ground
 
 windows:
 
-  - debug:
+  - ground_system:
       layout: even-horizontal
       panes:
         - clear && echo "So nice to have you with us, this is the ground container."
-
-  - ground_system_over_zenoh:
-      layout: even-vertical
-      panes:
         - ros2 run ground_system oracle --num-drones <%=  num_quads + num_vtols %> --base-port 14540 --rate 1.0 <%= simulated_time ? ' --ros-args -p use_sim_time:=True' : '' %>
-        - zenoh-bridge-ros2dds -c /aas/ground_resources/comms/zenoh_config_ground.json5
 
-  - qgc:
+  - zenoh_and_qgc:
       layout: even-horizontal
       panes:
+        - zenoh-bridge-ros2dds -c /aas/ground_resources/comms/zenoh_config_ground.json5
         <% if headless %>
         - echo "Headless mode, not launching QGroundControl."
         <% else %>
