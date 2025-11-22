@@ -36,7 +36,7 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 
 > AAS is tested on Ubuntu 22.04 with `nvidia-driver-580` using an i7-11 with 16GB RAM and RTX 3060
 > 
-> On Ubuntu, read [`REQUIREMENTS_UBUNTU.md`](/supplementary/REQUIREMENTS_UBUNTU.md) to setup the requirements (Docker Engine, NVIDIA Container Toolkit, etc.)
+> On Ubuntu, read [`REQUIREMENTS_UBUNTU.md`](/supplementary/REQUIREMENTS_UBUNTU.md) to setup the requirements (Docker Engine, `nvidia-ctk`, etc.)
 >
 > On Windows 11, read [`REQUIREMENTS_WSL.md`](/supplementary/REQUIREMENTS_WSL.md) to setup WSLg
 
@@ -54,7 +54,7 @@ cd ~/git/aerial-autonomy-stack/scripts
 
 [![simulation-image amd64](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-simulation-amd64-build.yml/badge.svg)](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-simulation-amd64-build.yml)
 [![ground-image amd64](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-ground-amd64-build.yml/badge.svg)](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-ground-amd64-build.yml)
-[![aircraft-image amd64](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-amd64-build.yml/badge.svg)](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-amd64-build.yml) (All images are re-built every Friday night)
+[![aircraft-image amd64](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-amd64-build.yml/badge.svg)](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-amd64-build.yml) (re-built weekly)
 
 ---
 
@@ -261,7 +261,7 @@ cd ~/git/aerial-autonomy-stack/scripts
 ./deploy_build.sh                                                                             # Build for arm64, on Jetson Orin NX the first build takes ~1h, mostly to build onnxruntime-gpu with TensorRT support from source
 ```
 
-[![aircraft-image arm64](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-arm64-build.yml/badge.svg)](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-arm64-build.yml) (All images are re-built every Friday night)
+[![aircraft-image arm64](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-arm64-build.yml/badge.svg)](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-arm64-build.yml) (re-built weekly)
 
 Finally, start the `aircraft-image` on Jetson Orin NX
 
