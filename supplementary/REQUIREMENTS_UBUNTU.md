@@ -10,11 +10,12 @@
   - Run "Software Updater" and restart
   - "Update All" in "Ubuntu Software" (including `killall snap-store && sudo snap refresh snap-store`)
   - Update and restart for "Device Firmware" as necessary
-- In "Software & Updates", select `nvidia-driver-580 (propietary, tested)`
-  - Running `nvidia-smi` will report Driver Version: 580.65.06, CUDA Version: 13.0
+- In "Software & Updates", select `nvidia-driver-580 (proprietary, tested)`
 
 ```sh
 sudo apt update && sudo apt upgrade
+
+nvidia-smi                          # Should report "Driver Version: 580.65.06, CUDA Version: 13.0"
 
 # Set NVIDIA Performance Mode
 sudo prime-select nvidia            # Reboot and check in Ubuntu's "Settings" -> "About" -> "Graphics" is your NVIDIA card
