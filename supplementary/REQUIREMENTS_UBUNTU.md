@@ -1,29 +1,29 @@
 # Pre-installation Steps for AAS on Ubuntu
 
-## Install Ubuntu with NVIDIA Driver
-
-> [!IMPORTANT]
 > These instructions are tested using Ubuntu 22.04.5 LTS
 
-- Install the host OS from a startup disk based on Ubuntu 22 or newer (e.g. `ubuntu-22.04.5-desktop-amd64.iso`)
-- Choose "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
-- Run "Software Updater", restart
-- "Update All" in "Ubuntu Software" (including `killall snap-store && sudo snap refresh snap-store`)
-- Update and restart for "Device Firmware" as necessary
+## Install Ubuntu with NVIDIA Driver
+
+- Get/install an OS from a startup disk based on Ubuntu 22 or newer (e.g. `ubuntu-22.04.5-desktop-amd64.iso`)
+  - Choose "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
+- Update the OS
+  - Run "Software Updater" and restart
+  - "Update All" in "Ubuntu Software" (including `killall snap-store && sudo snap refresh snap-store`)
+  - Update and restart for "Device Firmware" as necessary
 - In "Software & Updates", select `nvidia-driver-580 (propietary, tested)`
-- Running `nvidia-smi` will report Driver Version: 580.65.06, CUDA Version: 13.0
+  - Running `nvidia-smi` will report Driver Version: 580.65.06, CUDA Version: 13.0
 
 ```sh
 sudo apt update && sudo apt upgrade
 
-# Select PRIME profile "NVIDIA (Performance Mode)" from CLI
+# Set NVIDIA Performance Mode
 sudo prime-select nvidia            # Reboot and check in Ubuntu's "Settings" -> "About" -> "Graphics" is your NVIDIA card
 
 sudo apt install -y mesa-utils
 glxinfo | grep "OpenGL renderer"    # Check the GPU is the OpenGL renderer
 ```
 
-## Install Docker Engine and NVIDIA Container Toolkit
+## Install Docker Engine
 
 ```sh
 # Based on https://docs.docker.com/engine/install/ubuntu/ and https://docs.docker.com/engine/install/linux-postinstall/
@@ -58,17 +58,7 @@ newgrp docker                       # Reboot
 docker run hello-world              # Test Docker is working without sudo
 ```
 
-Log in to the NVIDIA Registry:
-
-- Go to https://ngc.nvidia.com and login/create an account.
-- Click on your account the top right, go to Setup -> Get API Key.
-- Click "Generate API Key" -> "+ Generate Personal Key" for the "NCG Catalog" service, confirm, and copy the key.
-
-```sh
-docker login nvcr.io                # To be able to reliably pull NVIDIA base images
-Username:                           # type $oauthtoken
-Password:                           # copy and paste the API key and press enter to pull base images from nvcr.io/
-```
+## Install NVIDIA Container Toolkit
 
 ```sh
 # Based on https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
@@ -93,6 +83,20 @@ sudo systemctl restart docker
 docker info | grep -i runtime       # Check `nvidia` runtime is available
 
 docker run --rm --gpus all nvcr.io/nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi        # Test nvidia-smi works in a container with CUDA
+```
+
+## Troubleshoot
+
+To be able to pull the base Docker images frequently, you might have to log in to the NVIDIA Registry:
+
+- Go to https://ngc.nvidia.com and login/create an account.
+- Click on your account the top right, go to Setup -> Get API Key.
+- Click "Generate API Key" -> "+ Generate Personal Key" for the "NCG Catalog" service, confirm, and copy the key.
+
+```sh
+docker login nvcr.io                # To be able to reliably pull NVIDIA base images
+Username:                           # type $oauthtoken
+Password:                           # copy and paste the API key and press enter to pull base images from nvcr.io/
 ```
 
 <!--

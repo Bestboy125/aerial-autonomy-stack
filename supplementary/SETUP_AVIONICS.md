@@ -58,7 +58,7 @@ sudo apt update && sudo apt install -y v4l-utils
 v4l2-ctl --list-formats-ext -d /dev/video0 
 ```
 
-## Install Docker Engine and NVIDIA Container Toolkit on Jetson Orin
+## Install Docker Engine on Jetson Orin
 
 ```sh
 # Based on https://docs.docker.com/engine/install/ubuntu/ and https://docs.docker.com/engine/install/linux-postinstall/
@@ -93,17 +93,7 @@ newgrp docker                       # Reboot
 docker run hello-world              # Test Docker is working without sudo
 ```
 
-Log in to the NVIDIA Registry:
-
-- Go to https://ngc.nvidia.com and login/create an account.
-- Click on your account the top right, go to Setup -> Get API Key.
-- Click "Generate API Key" -> "+ Generate Personal Key" for the "NCG Catalog" service, confirm, and copy the key.
-
-```sh
-docker login nvcr.io                # To be able to reliably pull NVIDIA base images
-Username:                           # type $oauthtoken
-Password:                           # copy and paste the API key and press enter to pull base images from nvcr.io/
-```
+## Install NVIDIA Container Toolkit on Jetson Orin
 
 ```sh
 # Based on https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html

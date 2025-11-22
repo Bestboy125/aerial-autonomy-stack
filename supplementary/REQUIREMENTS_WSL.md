@@ -1,9 +1,8 @@
 # Pre-installation Steps for AAS on Windows 11
 
-## Setup WSLg with Ubuntu 22
+## Setup WSLg for Ubuntu 22
 
-> [!IMPORTANT]
-> **The latest Windows Subsystem for Linux (WSL2) and WSLg (WSL2 extension with GUI capabilities) are already included in Windows 11**
+> The latest Windows Subsystem for Linux (WSL2) and WSLg (WSL2 extension with GUI capabilities) are included in Windows 11
 >
 > These instructions are tested using Windows 11 Pro (OS build 26100.6584) on a w7-34 with RTX A4500
 
@@ -42,12 +41,12 @@ xclock                                                # Test: a new window with 
 > free -h                           # Check the available memory and swap reflect .wslconfig
 > ```
 
-## Install the NVIDIA Driver in Windows 11
+## Install the NVIDIA Driver on Windows 11
 
-Download and install **NVIDIA driver 580** using the [NVIDIA App](https://www.nvidia.com/en-us/software/nvidia-app/) 
+Download and install the **NVIDIA driver 580 on Windows** using the [NVIDIA App](https://www.nvidia.com/en-us/software/nvidia-app/) 
 
 > [!WARNING] 
-> The latest NVIDIA Windows drivers fully support **WSL2**, enabling existing CUDA applications compiled on Linux to run unmodified in WSL, once the Windows NVIDIA driver is installed, CUDA is available in WSL2 *via* a stubbed `libcuda.so`
+> The latest NVIDIA Windows drivers fully support WSL2, enabling existing CUDA applications compiled on Linux to run unmodified in WSL, once the Windows NVIDIA driver is installed, CUDA is available in WSL2 *via* a stubbed `libcuda.so`
 >
 > **Do NOT install a separate NVIDIA GPU Linux driver inside WSL2**
 
@@ -61,7 +60,7 @@ nvidia-smi                          # From WSL, check NVIDIA driver (these instr
 glxinfo -B                          # Check the GPU is the OpenGL renderer
 ```
 
-## Install Docker Engine and NVIDIA Container Toolkit inside WSLg
+## Install Docker Engine inside WSLg
 
 From PowerShell
 
@@ -100,19 +99,13 @@ newgrp docker                       # Reboot
 docker run hello-world              # Test Docker is working without sudo
 ```
 
-Log in to the NVIDIA Registry:
+## Install NVIDIA Container Toolkit inside WSLg
 
-- Go to https://ngc.nvidia.com and login/create an account.
-- Click on your account the top right, go to Setup -> Get API Key.
-- Click "Generate API Key" -> "+ Generate Personal Key" for the "NCG Catalog" service, confirm, and copy the key.
+From PowerShell
 
 ```sh
-docker login nvcr.io                # To be able to reliably pull NVIDIA base images
-Username:                           # type $oauthtoken
-Password:                           # copy and paste (e.g. right-click once in PowerShell) the API key and press enter to pull base images from nvcr.io/
-```
+wsl ~
 
-```sh
 # Based on https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
 
 sudo apt-get update && sudo apt-get install -y --no-install-recommends curl gnupg2
@@ -135,6 +128,20 @@ sudo systemctl restart docker
 docker info | grep -i runtime       # Check `nvidia` runtime is available
 
 docker run --rm --gpus all nvcr.io/nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi        # Test nvidia-smi works in a container with CUDA
+```
+
+## Troubleshoot
+
+To be able to pull the base Docker images frequently, you might have to log in to the NVIDIA Registry:
+
+- Go to https://ngc.nvidia.com and login/create an account.
+- Click on your account the top right, go to Setup -> Get API Key.
+- Click "Generate API Key" -> "+ Generate Personal Key" for the "NCG Catalog" service, confirm, and copy the key.
+
+```sh
+docker login nvcr.io                # To be able to reliably pull NVIDIA base images
+Username:                           # type $oauthtoken
+Password:                           # copy and paste the API key and press enter to pull base images from nvcr.io/
 ```
 
 ![wsl](https://github.com/user-attachments/assets/1b4a18c0-896f-4e5f-9186-72425ceeabac)
