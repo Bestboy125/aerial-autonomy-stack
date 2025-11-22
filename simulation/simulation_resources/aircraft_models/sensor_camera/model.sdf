@@ -38,11 +38,11 @@
           </image>
           <clip>
             <near>0.1</near>
-            <far>3000</far>
+            <far>2000</far>
           </clip>
         </camera>
         <always_on>1</always_on>
-        <update_rate>10</update_rate>
+        <update_rate>8</update_rate>
         <visualize>false</visualize>
         <!-- <topic>camera_1</topic> -->
       </sensor>

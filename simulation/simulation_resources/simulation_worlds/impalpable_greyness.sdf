@@ -199,7 +199,7 @@
           <property key="state" type="string">floating</property>
           <property key="showTitleBar" type="bool">true</property>
           <property key="width" type="double">150</property>
-          <property key="height" type="double">600</property>
+          <property key="height" type="double">4096</property>
         </gz-gui>
       </plugin>
     </gui>
