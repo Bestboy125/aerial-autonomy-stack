@@ -49,9 +49,17 @@ cd ~/git/aerial-autonomy-stack/scripts
 # Note: the 1st build takes ~30GB of space and ~25' with good internet (`Ctrl + c` and restart if needed)
 ```
 
-[![simulation-image amd64](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-simulation-amd64-build.yml/badge.svg)](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-simulation-amd64-build.yml)
-[![ground-image amd64](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-ground-amd64-build.yml/badge.svg)](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-ground-amd64-build.yml)
-[![aircraft-image amd64](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-amd64-build.yml/badge.svg)](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-amd64-build.yml)
+<div align="right">
+  <a href="https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-simulation-amd64-build.yml">
+    <img src="https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-simulation-amd64-build.yml/badge.svg" alt="simulation-image amd64">
+  </a>
+  <a href="https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-ground-amd64-build.yml">
+    <img src="https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-ground-amd64-build.yml/badge.svg" alt="ground-image amd64">
+  </a>
+  <a href="https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-amd64-build.yml">
+    <img src="https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-amd64-build.yml/badge.svg" alt="aircraft-image amd64">
+  </a>
+</div>
 
 ---
 
@@ -258,7 +266,11 @@ cd ~/git/aerial-autonomy-stack/scripts
 ./deploy_build.sh                                                                             # Build for arm64, on Jetson Orin NX the first build takes ~1h, mostly to build onnxruntime-gpu with TensorRT support from source
 ```
 
-[![aircraft-image arm64](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-arm64-build.yml/badge.svg)](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-arm64-build.yml)
+<div align="right">
+  <a href="https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-arm64-build.yml">
+    <img src="https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-arm64-build.yml/badge.svg" alt="aircraft-image arm64">
+  </a>
+</div>
 
 Finally, start the `aircraft-image` on Jetson Orin NX
 
