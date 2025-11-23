@@ -6,8 +6,6 @@
 2. **Simulate** perception and control with YOLOv8, LiDAR, and PX4 or ArduPilot
 3. **Deploy** in real drones with JetPack and NVIDIA Orin
 
-https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
-
 <details>
 <summary><b>Feature list</b> <i>(click to expand)</i></summary>
 
@@ -27,10 +25,9 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 - [ArduPilot Guided](https://ardupilot.org/copter/docs/ac2_guidedmode.html) interface (i.e. `setpoint_velocity`, `setpoint_accel` references)
 - Logs analysis with [`flight_review`](https://github.com/PX4/flight_review) (`.ulg`), MAVExplorer (`.bin`), and [PlotJuggler](https://github.com/facontidavide/PlotJuggler) (`rosbag`)
 
-
 </details>
 
----
+https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 
 ## "How-to" Part 1: Installation
 
@@ -330,16 +327,15 @@ Distributed under the MIT License. See `LICENSE.txt` for more information. Copyr
 ## Known Issues
 
 - ArduPilot CIRCLE mode for quads require to explicitly center the throttle with 'rc 3 1500' to keep altitude, QGC virtual joystick can interfere
-- On non-configured real-life AP, missing topics: ros2 topic echo /mavros/local_position/odom ros2 topic echo /mavros/home_position/home
-- The simulation (SITL or HITL) container must start after the aircraft ones for Gstreamer to pick up the UDP streams
-- Resizing Gazebo/QGC windows with wmctrl does not work in WSLg
 - QGC is started with a virtual joystick (with low throttle if using only VTOLs and centered throttle if there are quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
+- On non-configured real-life AP, missing topics: ros2 topic echo /mavros/local_position/odom ros2 topic echo /mavros/home_position/home
 - Gazebo WindEffects plugin is disabled/not working for PX4 standard_vtol
 - Command 178 MAV_CMD_DO_CHANGE_SPEED is accepted but not effective in changing speed for ArduPilot VTOL
 - ArduPilot SITL for Iris uses option -f that also sets "external": True, this is not the case for the Alti Transition from ArduPilot/SITL_Models 
 - In ArdupilotInterface's action callbacks, std::shared_lock<std::shared_mutex> lock(node_data_mutex_); could be used on the reads of lat_, lon_, alt_
 - QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs (MAV_TYPE 22)
 - PX4 quad max tilt is limited by the anti-windup gain (zero it to deactivate it): const float arw_gain = 2.f / _gain_vel_p(0);
+- Resizing Gazebo/QGC windows with wmctrl does not work in WSLg
 
 ## TODOs
 

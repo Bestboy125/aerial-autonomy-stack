@@ -162,7 +162,7 @@ if [[ "$HITL" == "false" ]]; then
     local num_drones=$2
     
     for i in $(seq 1 $num_drones); do
-      sleep 1.5 # Limit resource usage
+      sleep 1.0 # Limit resource usage
       DOCKER_CMD="docker run -it --rm \
         --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
         --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
@@ -192,8 +192,7 @@ if [[ "$HITL" == "false" ]]; then
   launch_aircraft_containers "vtol" $NUM_VTOLS
 
   if [[ "$GND_CONTAINER" == "true" ]]; then
-    # Finally, connect ground and aircraft containers to the air network
-    sleep 2
+    sleep 2.0 # Once all containers are up, connect ground and aircraft containers to the air network
     docker network connect --ip=${AIR_SUBNET}.90.$GROUND_ID aas-air-network ground-container
     for i in $(seq 1 $((NUM_QUADS + NUM_VTOLS))); do
       docker network connect --ip=${AIR_SUBNET}.90.$i aas-air-network aircraft-container_$i

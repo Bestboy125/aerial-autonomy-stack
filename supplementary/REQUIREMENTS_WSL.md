@@ -145,4 +145,3 @@ Password:                           # copy and paste the API key and press enter
 ```
 
 ![wsl](https://github.com/user-attachments/assets/1b4a18c0-896f-4e5f-9186-72425ceeabac)
-

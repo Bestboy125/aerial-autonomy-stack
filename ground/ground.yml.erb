@@ -35,11 +35,11 @@ windows:
             SCREEN_SCALE=$((SCREEN_H * 100 / 1080)) # Full HD = 100%
             WIN_W=$(( 800 * SCREEN_SCALE / 100 )); WIN_H=$(( 480 * SCREEN_SCALE / 100 ))
             POS_X=$((SCREEN_W - WIN_W)); POS_Y=$((4096))
-            for i in {1..10}; do 
-              sleep 3
+            for i in {1..15}; do
               if wmctrl -l | grep -q "QGroundControl"; then
                 wmctrl -r "QGroundControl" -e "0,$POS_X,$POS_Y,$WIN_W,$WIN_H" && break
               fi
+              sleep 2
             done
           )
         <% end %>

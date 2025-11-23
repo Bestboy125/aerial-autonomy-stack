@@ -76,9 +76,9 @@ windows:
       layout: main-horizontal
       panes:
         - >
-          sleep <%= drone_id * 3 %> &&
+          sleep <%= sitl_instance * 1.5 %> &&
           PX4_GZ_MODEL_POSE=<%= "#{x_offset},#{y_offset},1.0,0,0,0" %>
-          PX4_SYS_AUTOSTART=<%= autostart %> ROS_DOMAIN_ID=<%= drone_id %>
+          PX4_SYS_AUTOSTART=<%= autostart %> ROS_DOMAIN_ID=<%= drone_id %> <%= gnd_container ? "AAS_GROUND_IP=#{sim_subnet}.90.#{ground_id}" : "" %>
           PX4_UXRCE_DDS_NS="Drone<%= drone_id %>" PX4_UXRCE_DDS_AG_IP=<%= "#{sim_subnet}.90.#{drone_id}" %> PX4_UXRCE_DDS_PORT=8888
           /aas/github_apps/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i <%= sitl_instance %>
   <% elsif autopilot == 'ardupilot' %>
@@ -86,7 +86,7 @@ windows:
       layout: main-horizontal
       panes:
         - >
-          sleep <%= drone_id * 5 %> && mkdir -p /aas/ardu_sitl_<%= drone_id %> && cd /aas/ardu_sitl_<%= drone_id %> &&
+          sleep <%= sitl_instance * 3.0 %> && mkdir -p /aas/ardu_sitl_<%= drone_id %> && cd /aas/ardu_sitl_<%= drone_id %> &&
           /aas/github_apps/ardupilot/Tools/autotest/sim_vehicle.py 
           <%= vehicle_config %> --model JSON
           -I <%= sitl_instance %> --sysid <%= drone_id %>
@@ -94,14 +94,17 @@ windows:
           --add-param-file=/aas/simulation_resources/aircraft_models/<%= model_name %>/ardupilot-4.6.params
           -l $(python3 /aas/simulation_resources/patches/extract_spherical_coords.py /aas/simulation_resources/simulation_worlds/<%= world %>.sdf)
           --out=udp:<%= "#{sim_subnet}.90.#{drone_id}" %>:8888
-          --out=udp:127.0.0.1:<%= 14540 + sitl_instance %> --out=udp:127.0.0.1:<%= 14550 + sitl_instance %>
+          <% if gnd_container %>
+          --out=udp:<%= "#{sim_subnet}.90.#{ground_id}" %>:<%= 14550 + sitl_instance %> --out=udp:<%= "#{sim_subnet}.90.#{ground_id}" %>:<%= 14540 + sitl_instance %>
+          <% else %>
+          --out=udp:127.0.0.1:<%= 14550 + sitl_instance %>
+          <% end %>
         <% if is_quad %>
-        - sleep <%= drone_id * 5 + 35 %> && tmux send-keys -t 'sim:ardupilot_sitl_<%= drone_id %>.0' 'rc 3 1500' C-m
+        - sleep <%= sitl_instance * 3.0 + 35.0 %> && tmux send-keys -t 'sim:ardupilot_sitl_<%= drone_id %>.0' 'rc 3 1500' C-m
         <% end %>
   <% end %>
         <% if camera %>
         - >
-          sleep <%= drone_id * 5 %> &&
           /aas/simulation_resources/comms/gz_gst_bridge/build/gz_gst_bridge
           /world/<%= world %>/model/<%= model_name %>/<%= sensor_path %>model/simple_camera/link/mono_cam/base_link/sensor/imager/image
           <%= "#{sim_subnet}.90.#{drone_id}" %> 5600 8
@@ -111,14 +114,6 @@ windows:
           ROS_DOMAIN_ID=<%= drone_id %> ros2 run ros_gz_bridge parameter_bridge 
           /world/<%= world %>/model/<%= model_name %>/<%= sensor_path %>model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked 
           --ros-args -r /world/<%= world %>/model/<%= model_name %>/<%= sensor_path %>model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points
-        <% end %>
-        <% if gnd_container %>
-        - > 
-          mavproxy.py --state-basedir=/aas/mavproxy_<%= drone_id %>/ground --master=udp:127.0.0.1:<%= 14540 + sitl_instance %> 
-          --out=udp:<%= "#{sim_subnet}.90.#{ground_id}" %>:<%= 14540 + sitl_instance %> --streamrate -1
-        - >
-          sleep 3 && mavproxy.py --state-basedir=/aas/mavproxy_<%= drone_id %>/qgc --master=udp:127.0.0.1:<%= 14550 + sitl_instance %> 
-          --out=udp:<%= "#{sim_subnet}.90.#{ground_id}" %>:<%= 14550 + sitl_instance %> --streamrate -1
         <% end %>
         - "ROS_DOMAIN_ID=<%= drone_id %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
   <% end %>
@@ -142,11 +137,11 @@ windows:
             SCREEN_SCALE=$((SCREEN_H * 100 / 1080)) # Full HD = 100%
             WIN_W=$(( 800 * SCREEN_SCALE / 100 )); WIN_H=$(( 480 * SCREEN_SCALE / 100 ))
             POS_X=$((SCREEN_W - WIN_W)); POS_Y=$((4096))
-            for i in {1..10}; do 
-              sleep 3
+            for i in {1..15}; do
               if wmctrl -l | grep -q "QGroundControl"; then
                 wmctrl -r "QGroundControl" -e "0,$POS_X,$POS_Y,$WIN_W,$WIN_H" && break
               fi
+              sleep 2
             done
           )
         <% end %>
@@ -162,11 +157,11 @@ windows:
             SCREEN_SCALE=$((SCREEN_H * 100 / 1080)) # Full HD = 100%
             WIN_W=$(( 800 * SCREEN_SCALE / 100 )); WIN_H=$(( 480 * SCREEN_SCALE / 100 ))
             POS_X=$((SCREEN_W - WIN_W)); POS_Y=$(( 0 ))
-            for i in {1..10}; do 
-              sleep 3
+            for i in {1..15}; do
               if wmctrl -l | grep -q "Gazebo Sim"; then
                 wmctrl -r "Gazebo Sim" -e "0,$POS_X,$POS_Y,$WIN_W,$WIN_H" && break
               fi
+              sleep 2
             done
           )
         <% if gnd_container %>

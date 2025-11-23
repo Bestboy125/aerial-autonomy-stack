@@ -42,4 +42,3 @@ For even more resources, check out [`aerial_robotic_landscape`](https://github.c
     - GStreamer camera-to-companion board acquisition pipelines
     - Zenoh inter-vehicle ROS2 bridge, with networking over LAN (HITL) or emulated by `docker network` (SITL)
     - Dual network—in both SITL and HITL—to separate synthetic sensor data from inter-vehicle communication
-
