@@ -337,6 +337,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information. Copyr
 
 ## Known Issues
 
+- On devices with limited resources, loading heavy worlds and/or many robots can lead to inconsistent gz-sim behaviour
 - ArduPilot CIRCLE mode for quads require to explicitly center the throttle with 'rc 3 1500' to keep altitude, QGC virtual joystick can interfere
 - QGC is started with a virtual joystick (with low throttle if using only VTOLs and centered throttle if there are quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
 - On non-configured real-life AP, missing topics: ros2 topic echo /mavros/local_position/odom ros2 topic echo /mavros/home_position/home
