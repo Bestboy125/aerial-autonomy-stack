@@ -59,6 +59,24 @@ newgrp docker                       # Reboot
 docker run hello-world              # Test Docker is working without sudo
 ```
 
+**Optionally**, increase the swap size and, if you have an SSD, decrease swappiness
+
+```sh
+# Increase Ubuntu's default 2GB swap memory to 8GB
+sudo swapon --show
+sudo swapoff /swapfile
+sudo fallocate -l 8G /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+sudo swapon --show
+
+# Decrease Ubuntu's default swappiness of 60 to 10 (to reduce SSD wear)
+cat /proc/sys/vm/swappiness
+echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+cat /proc/sys/vm/swappiness
+```
+
 ## Install NVIDIA Container Toolkit
 
 ```sh
