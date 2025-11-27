@@ -18,7 +18,7 @@
 #include "ground_system_msgs/msg/swarm_obs.hpp"
 #include "ground_system_msgs/msg/drone_obs.hpp"
 
-// MAVLink Headers, useing the common set for GLOBAL_POSITION_INT
+// MAVLink Headers, using the common set for GLOBAL_POSITION_INT
 #include "mavlink/common/mavlink.h"
 
 struct DroneData {

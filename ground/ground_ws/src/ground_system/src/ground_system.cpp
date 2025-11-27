@@ -14,7 +14,7 @@ GroundSystem::GroundSystem() : Node("ground_system"), keep_running_(true)
     base_port_ = this->get_parameter("base_port").as_int();
     publish_rate_ = this->get_parameter("rate").as_double();
 
-    // Initialize Random Engine
+    // Random Seed
     rng_.seed(std::random_device()());
 
     // Publisher
@@ -83,11 +83,9 @@ void GroundSystem::mavlink_listener(int drone_id, int port)
             for (ssize_t i = 0; i < len; ++i) {
                 if (mavlink_parse_char(MAVLINK_COMM_0, buffer[i], &msg, &status)) {
                     
-                    // Handle GLOBAL_POSITION_INT
-                    if (msg.msgid == MAVLINK_MSG_ID_GLOBAL_POSITION_INT) {
+                    if (msg.msgid == MAVLINK_MSG_ID_GLOBAL_POSITION_INT) { // Handle GLOBAL_POSITION_INT message
                         mavlink_global_position_int_t pos;
                         mavlink_msg_global_position_int_decode(&msg, &pos);
-
                         DroneData obs;
                         obs.lat = pos.lat / 1e7;
                         obs.lon = pos.lon / 1e7;
@@ -95,7 +93,6 @@ void GroundSystem::mavlink_listener(int drone_id, int port)
                         obs.vx = pos.vx / 100.0;    // cm/s to m/s
                         obs.vy = pos.vy / 100.0;
                         obs.vz = pos.vz / 100.0;
-
                         {
                             std::lock_guard<std::mutex> lock(data_mutex_);
                             drone_obs_[drone_id] = obs;
@@ -104,12 +101,12 @@ void GroundSystem::mavlink_listener(int drone_id, int port)
                 }
             }
         } else if (len < 0) { // Handle timeout or error
-        if (errno == EAGAIN || errno == EWOULDBLOCK) {
-            continue; // Just a timeout, continue loop to check keep_running_
-        } else {
-            RCLCPP_WARN(this->get_logger(), "Recv failed for drone %d: %s", drone_id, strerror(errno));
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                continue; // Just a timeout, continue loop to check keep_running_
+            } else {
+                RCLCPP_WARN(this->get_logger(), "Recv failed for drone %d: %s", drone_id, strerror(errno));
+            }
         }
-    }
     }
 
     close(sockfd);
