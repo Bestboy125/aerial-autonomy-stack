@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>ground_system_py</name>
+  <name>yolo_py</name>
   <version>0.1.0</version>
-  <description>Ground system</description>
+  <description>Python YOLO inference</description>
   <maintainer email="jacopo.pan@gmail.com">JacopoPan</maintainer>
   <license>MIT License</license>
 
   <depend>rclpy</depend>
 
-  <depend>ground_system_msgs</depend>
+  <depend>vision_msgs</depend>
 
   <exec_depend>rosidl_default_runtime</exec_depend>
 

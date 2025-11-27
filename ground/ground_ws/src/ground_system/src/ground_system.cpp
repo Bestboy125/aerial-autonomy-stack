@@ -77,7 +77,7 @@ void GroundSystem::mavlink_listener(int drone_id, int port)
 
     while (keep_running_ && rclcpp::ok()) {
         ssize_t len = recvfrom(sockfd, (char *)buffer, 2048, 0, NULL, NULL);
-        // Small sleep to prevent CPU hogging is handled by recvfrom blocking/timeout
+        // Prevention of CPU hogging is handled by recvfrom blocking/timeout
         if (len > 0) {
             // Parse bytes
             for (ssize_t i = 0; i < len; ++i) {
@@ -103,7 +103,13 @@ void GroundSystem::mavlink_listener(int drone_id, int port)
                     }
                 }
             }
+        } else if (len < 0) { // Handle timeout or error
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            continue; // Just a timeout, continue loop to check keep_running_
+        } else {
+            RCLCPP_WARN(this->get_logger(), "Recv failed for drone %d: %s", drone_id, strerror(errno));
         }
+    }
     }
 
     close(sockfd);

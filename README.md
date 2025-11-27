@@ -67,7 +67,7 @@ cd ~/git/aerial-autonomy-stack/scripts
 
 ![interface](https://github.com/user-attachments/assets/71b07851-42dd-45d4-a9f5-6b5b00cd85bc)
 
-> On a low-mid range laptop—i7-11 with 16GB RAM and RTX 3060—AAS can simulate a PX4 quad with YOLO and LiDAR at **~8x real-time-factor** (with flag `RTF=0.0`, note that ArduPilot faster physics updates have higher computational demands). Make sure you run `sudo prime-select nvidia` and rebooted to effectively leverage GPU compute.
+> On a low-mid range laptop—i7-11 with 16GB RAM and RTX 3060—AAS can simulate a PX4 quad with YOLO and LiDAR at **~8x real-time-factor** (with flag `RTF=0.0`, monitor with `gz topic -e -t /stats`, note that ArduPilot faster physics updates have higher computational demands). Make sure you run `sudo prime-select nvidia` and rebooted to effectively leverage GPU compute.
 
 ### Fly a Simulated Mission
 
@@ -171,7 +171,7 @@ Included `WORLD`s:
 > │   │       ├── mission                             # Orchestrator of the actions in `autopilot_interface` 
 > │   │       ├── offboard_control                    # Low-level references for the Offboard action in `autopilot_interface` 
 > │   │       ├── state_sharing                       # Publisher of the `/state_sharing_drone_N` topic broadcasted by Zenoh
-> │   │       └── yolo_inference                      # GStreamer video acquisition and publisher of YOLO bounding boxes
+> │   │       └── yolo_py                             # GStreamer video acquisition and publisher of YOLO bounding boxes
 > │   │
 > │   └── aircraft.yml.erb                            # Aircraft docker tmux entrypoint
 > │

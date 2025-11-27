@@ -8,7 +8,7 @@ find_package(gz-msgs10 REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GST REQUIRED gstreamer-1.0 gstreamer-app-1.0)
 
-add_executable(gz_gst_bridge main.cpp)
+add_executable(gz_gst_bridge gz_gst_bridge.cpp)
 
 target_include_directories(gz_gst_bridge PUBLIC 
     ${GST_INCLUDE_DIRS}
