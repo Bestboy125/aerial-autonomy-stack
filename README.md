@@ -360,6 +360,7 @@ HITL/SITL architectures
 
 ## Future Work / Ideas for Contributions
 
+- Support for [NVIDIA DeepStream](https://developer.nvidia.com/deepstream-sdk) in the aircraft_ws YOLO node
 - Support for [Betaflight SITL](https://betaflight.com/docs/development/SITL) interfaced *via* UDP or [MultiWii Serial Protocol (MSP)](https://github.com/betaflight/betaflight/tree/master/src/main/msp)
 - Support for [ArduPilot's DDS interface](https://ardupilot.org/dev/docs/ros2-interfaces.html)
 - Support for a [Isaac Sim](https://github.com/isaac-sim/IsaacSim) higher fidelity rendering

@@ -29,7 +29,8 @@ RTF_VALUE=$(sed -n '/<physics/,/<\/physics>/ s/.*<real_time_factor>\([^<]*\)<\/r
 RTF_VALUE=${RTF_VALUE:-1.0}
 
 # IMPORTANT: this replaces the whole <physics> block with Ardupilot's SITL settings
-ARDUPILOT_PHYSICS="    <physics name=\"1ms\" type=\"ignore\">\n      <max_step_size>0.001<\/max_step_size>\n      <real_time_factor>${RTF_VALUE}<\/real_time_factor>\n    <\/physics>"
+# The default step size for Ardupilot SITL is 1ms (1000Hz), here it is set to 1.25ms (800Hz), see also https://discuss.ardupilot.org/t/multi-vehicle-faster-than-real-time-sitl-with-gazebo-harmonic/141068/3
+ARDUPILOT_PHYSICS="    <physics name=\"1ms\" type=\"ignore\">\n      <max_step_size>0.00125<\/max_step_size>\n      <real_time_factor>${RTF_VALUE}<\/real_time_factor>\n    <\/physics>"
 sed -i -e "/<physics/,/<\/physics>/c\\
 ${ARDUPILOT_PHYSICS}" "$OUTPUT_FILE"
 
