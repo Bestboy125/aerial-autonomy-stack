@@ -29,8 +29,16 @@ RTF_VALUE=$(sed -n '/<physics/,/<\/physics>/ s/.*<real_time_factor>\([^<]*\)<\/r
 RTF_VALUE=${RTF_VALUE:-1.0}
 
 # IMPORTANT: this replaces the whole <physics> block with Ardupilot's SITL settings
-# The default step size for Ardupilot SITL is 1ms (1000Hz), here it is set to 1.25ms (800Hz), see also https://discuss.ardupilot.org/t/multi-vehicle-faster-than-real-time-sitl-with-gazebo-harmonic/141068/3
-ARDUPILOT_PHYSICS="    <physics name=\"1ms\" type=\"ignore\">\n      <max_step_size>0.00125<\/max_step_size>\n      <real_time_factor>${RTF_VALUE}<\/real_time_factor>\n    <\/physics>"
+#
+# The default step size for Ardupilot SITL is 1ms (1000Hz), here it is set to 2ms (500Hz)
+# Note that PX4 Gazebo simulation worlds use 4ms: https://github.com/PX4/PX4-gazebo-models/tree/main/worlds
+# To do so, we also set SCHED_LOOP_RATE 250 (instead of the original 400 for Iris and 300 for Alti) in the vehicle's .params files
+# This is required to pass pre-flight checks that expect sensor updates must be >1.8x faster (250 * 1.8 = 450 < 500Hz)
+#
+# For discussion on Gazebo faster-than-real-time multi-vehicle ArduPilot see also:
+# https://discuss.ardupilot.org/t/multi-vehicle-faster-than-real-time-sitl-with-gazebo-harmonic/141068/3
+# https://discuss.ardupilot.org/t/dual-vtail-mini-talon-gazebo-simulation-behaves-poorly/140919/11
+ARDUPILOT_PHYSICS="    <physics name=\"2ms\" type=\"ignore\">\n      <max_step_size>0.002<\/max_step_size>\n      <real_time_factor>${RTF_VALUE}<\/real_time_factor>\n    <\/physics>"
 sed -i -e "/<physics/,/<\/physics>/c\\
 ${ARDUPILOT_PHYSICS}" "$OUTPUT_FILE"
 
