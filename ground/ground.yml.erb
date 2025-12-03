@@ -36,8 +36,11 @@ windows:
             WIN_W=$(( 800 * SCREEN_SCALE / 100 )); WIN_H=$(( 480 * SCREEN_SCALE / 100 ))
             POS_X=$((SCREEN_W - WIN_W)); POS_Y=$((4096))
             for i in {1..15}; do
-              if wmctrl -l | grep -q "QGroundControl"; then
-                wmctrl -r "QGroundControl" -e "0,$POS_X,$POS_Y,$WIN_W,$WIN_H" && break
+              TARGET_NAME="QGroundControl"
+              CURRENT_DESK=$(wmctrl -d | grep '*' | awk '{print $1}')
+              WID=$(wmctrl -l | awk -v d="$CURRENT_DESK" -v n="$TARGET_NAME" '$2 == d && $0 ~ n "$" {print $1}' | head -n 1)
+              if [ -n "$WID" ]; then
+                wmctrl -i -r "$WID" -e "0,$POS_X,$POS_Y,$WIN_W,$WIN_H" && break
               fi
               sleep 2
             done
