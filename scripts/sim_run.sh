@@ -23,18 +23,18 @@ HITL="${HITL:-false}" # Options: true, false (default)
 GND_CONTAINER="${GND_CONTAINER:-true}" # Options: true (default), false
 RTF="${RTF:-1.0}" # Real-time factor (default = 1.0), set to <=0.0 for as fast as possible execution
 START_AS_PAUSED="${START_AS_PAUSED:-false}" # Options: true, false (default)
-#
 INSTANCE="${INSTANCE:-0}" # Integer ID to make docker network/container names unique as well as offsetting the second byte of the subnets (default = 0)
+# Set unique subnets and container/network names based on INSTANCE
 SIM_BYTE_1=$(echo "$SIM_SUBNET" | cut -d'.' -f1)
 SIM_BYTE_2=$(echo "$SIM_SUBNET" | cut -d'.' -f2)
 SIM_SUBNET="${SIM_BYTE_1}.$((SIM_BYTE_2 + INSTANCE))"
 AIR_BYTE_1=$(echo "$AIR_SUBNET" | cut -d'.' -f1)
 AIR_BYTE_2=$(echo "$AIR_SUBNET" | cut -d'.' -f2)
 AIR_SUBNET="${AIR_BYTE_1}.$((AIR_BYTE_2 + INSTANCE))"
-NAME_NET_SIM="aas-sim-network-inst${INSTANCE}"
-NAME_NET_AIR="aas-air-network-inst${INSTANCE}"
-NAME_SIM_CNT="simulation-container-inst${INSTANCE}"
-NAME_GND_CNT="ground-container-inst${INSTANCE}"
+SIM_NET_NAME="aas-sim-network-inst${INSTANCE}"
+AIR_NET_NAME="aas-air-network-inst${INSTANCE}"
+SIM_CONT_NAME="simulation-container-inst${INSTANCE}"
+GND_CONT_NAME="ground-container-inst${INSTANCE}"
 
 # Detect the environment (Ubuntu/GNOME, WSL, etc.)
 if command -v gnome-terminal >/dev/null 2>&1 && [ -n "$XDG_CURRENT_DESKTOP" ]; then
@@ -66,8 +66,8 @@ fi
 
 # Create docker networks for SITL
 if [[ "$HITL" == "false" ]]; then
-  docker network inspect $NAME_NET_SIM >/dev/null 2>&1 || docker network create --subnet=${SIM_SUBNET}.0.0/16 $NAME_NET_SIM
-  docker network inspect $NAME_NET_AIR >/dev/null 2>&1 || docker network create --subnet=${AIR_SUBNET}.0.0/16 $NAME_NET_AIR
+  docker network inspect $SIM_NET_NAME >/dev/null 2>&1 || docker network create --subnet=${SIM_SUBNET}.0.0/16 $SIM_NET_NAME
+  docker network inspect $AIR_NET_NAME >/dev/null 2>&1 || docker network create --subnet=${AIR_SUBNET}.0.0/16 $AIR_NET_NAME
 fi
 
 # Grant access to the X server
@@ -124,12 +124,12 @@ DOCKER_CMD="docker run -it --rm \
   --env GND_CONTAINER=$GND_CONTAINER \
   --env ROS_DOMAIN_ID=$SIM_ID \
   --privileged \
-  --name $NAME_SIM_CNT"
+  --name $SIM_CONT_NAME"
 # Configure network for HITL or SITL
 if [[ "$HITL" == "true" ]]; then
   DOCKER_CMD="$DOCKER_CMD --net=host"
 else
-  DOCKER_CMD="$DOCKER_CMD --net=$NAME_NET_SIM --ip=${SIM_SUBNET}.90.${SIM_ID}"
+  DOCKER_CMD="$DOCKER_CMD --net=$SIM_NET_NAME --ip=${SIM_SUBNET}.90.${SIM_ID}"
 fi
 # Add WSL-specific options and complete the command
 if [[ "$DESK_ENV" == "wsl" ]]; then
@@ -152,9 +152,9 @@ if [[ "$HITL" == "false" ]]; then
       --env NUM_QUADS=$NUM_QUADS --env NUM_VTOLS=$NUM_VTOLS \
       --env SIMULATED_TIME=true \
       --env ROS_DOMAIN_ID=$GROUND_ID \
-      --net=$NAME_NET_SIM --ip=${SIM_SUBNET}.90.${GROUND_ID} \
+      --net=$SIM_NET_NAME --ip=${SIM_SUBNET}.90.${GROUND_ID} \
       --privileged \
-      --name $NAME_GND_CNT"
+      --name $GND_CONT_NAME"
     # Add WSL-specific options and complete the command
     if [[ "$DESK_ENV" == "wsl" ]]; then
       DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
@@ -185,7 +185,7 @@ if [[ "$HITL" == "false" ]]; then
         --env SIM_SUBNET=$SIM_SUBNET --env AIR_SUBNET=$AIR_SUBNET --env SIM_ID=$SIM_ID --env GROUND_ID=$GROUND_ID \
         --env GND_CONTAINER=$GND_CONTAINER \
         --env ROS_DOMAIN_ID=$DRONE_ID \
-        --net=$NAME_NET_SIM --ip=${SIM_SUBNET}.90.$DRONE_ID \
+        --net=$SIM_NET_NAME --ip=${SIM_SUBNET}.90.$DRONE_ID \
         --privileged \
         --name $NAME_AIRCRAFT_CNT"
       # Add WSL-specific options and complete the command
@@ -206,9 +206,9 @@ if [[ "$HITL" == "false" ]]; then
 
   if [[ "$GND_CONTAINER" == "true" ]]; then
     sleep 2.0 # Once all containers are up, connect ground and aircraft containers to the air network
-    docker network connect --ip=${AIR_SUBNET}.90.$GROUND_ID $NAME_NET_AIR $NAME_GND_CNT
+    docker network connect --ip=${AIR_SUBNET}.90.$GROUND_ID $AIR_NET_NAME $GND_CONT_NAME
     for i in $(seq 1 $((NUM_QUADS + NUM_VTOLS))); do
-      docker network connect --ip=${AIR_SUBNET}.90.$i $NAME_NET_AIR "aircraft-container-inst${INSTANCE}_${i}"
+      docker network connect --ip=${AIR_SUBNET}.90.$i $AIR_NET_NAME "aircraft-container-inst${INSTANCE}_${i}"
     done
   fi
 fi
@@ -220,7 +220,7 @@ read -n 1 -s # Wait for user input
 # Cleanup function
 cleanup() {
   DOCKER_PIDS=$(pgrep -f "docker run.*inst${INSTANCE}" 2>/dev/null || true)
-  CONTAINER_NAMES=("${NAME_SIM_CNT}" "${NAME_GND_CNT}" "aircraft-container-inst${INSTANCE}")
+  CONTAINER_NAMES=("${SIM_CONT_NAME}" "${GND_CONT_NAME}" "aircraft-container-inst${INSTANCE}")
   CONTAINERS_TO_STOP=""
   for name in "${CONTAINER_NAMES[@]}"; do
       CONTAINERS_TO_STOP+=$(docker ps -a -q --filter name="${name}" 2>/dev/null || true)
@@ -230,8 +230,8 @@ cleanup() {
   if [ -n "$CONTAINERS_TO_STOP" ]; then
       echo "$CONTAINERS_TO_STOP" | xargs docker stop
   fi
-  docker network rm $NAME_NET_SIM 2>/dev/null && echo "Removed $NAME_NET_SIM" || echo "Network $NAME_NET_SIM not found or already removed"
-  docker network rm $NAME_NET_AIR 2>/dev/null && echo "Removed $NAME_NET_AIR" || echo "Network $NAME_NET_AIR not found or already removed"
+  docker network rm $SIM_NET_NAME 2>/dev/null && echo "Removed $SIM_NET_NAME" || echo "Network $SIM_NET_NAME not found or already removed"
+  docker network rm $AIR_NET_NAME 2>/dev/null && echo "Removed $AIR_NET_NAME" || echo "Network $AIR_NET_NAME not found or already removed"
   if [ -n "$DOCKER_PIDS" ]; then
     for dpid in $DOCKER_PIDS; do
       PARENT_PID=$(ps -o ppid= -p $dpid 2>/dev/null | tr -d ' ') # Determine process pids with a parent pid
