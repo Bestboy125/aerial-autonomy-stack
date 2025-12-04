@@ -16,6 +16,7 @@
   simulated_time = ENV.fetch('SIMULATED_TIME', 'false') == 'true'
   rtf = ENV.fetch('RTF', '1.0').to_f
   start_as_paused = ENV.fetch('START_AS_PAUSED', 'false') == 'true'
+  gymnasium = ENV.fetch('GYMNASIUM', 'false') == 'true'
 
   drones = []
   num_quads.times { |i| drones << { type: 'quad', index: i } }
@@ -170,3 +171,10 @@ windows:
         <% if gnd_container %>
         - "ROS_DOMAIN_ID=<%= ground_id %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
         <% end %>
+
+  <% if gymnasium %>
+  - zmq_bridge:
+      layout: even-horizontal
+      panes:
+        - ros2 run zmq_bridge_cpp zmq_bridge_node
+  <% end %>
