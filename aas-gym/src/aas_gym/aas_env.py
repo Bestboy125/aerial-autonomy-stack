@@ -41,33 +41,74 @@ class AASEnv(gym.Env):
         # Rendering
         self.render_mode = render_mode
 
-        # # Docker setup
-        # self.NETWORK_NAME = "gdr2-network"
-        # try:
-        #     self.client = docker.from_env()
-        # except Exception as e:
-        #     raise RuntimeError("Could not connect to the Docker daemon. Ensure Docker is running.") from e
-        # print(f"Setting up Docker Network: {self.NETWORK_NAME}...")
-        # try:
-        #     existing_network = self.client.networks.get(self.NETWORK_NAME)
-        #     existing_network.remove()
-        #     print(f"Existing network '{self.NETWORK_NAME}' removed.")
-        # except docker.errors.NotFound:
-        #     pass
-        # ipam_pool = docker.types.IPAMPool(
-        #     subnet='10.42.0.0/16',
-        #     gateway='10.42.0.1'
-        # )
-        # ipam_config=docker.types.IPAMConfig(
-        #     pool_configs=[ipam_pool]
-        # )
-        # self.network = self.client.networks.create(
-        #     self.NETWORK_NAME, 
-        #     driver="bridge",
-        #     ipam=ipam_config
-        # )
+        # Docker setup
+        try:
+            self.client = docker.from_env()
+        except Exception as e:
+            raise RuntimeError("Could not connect to the Docker daemon. Ensure Docker is running.") from e
+        
+        self.AUTOPILOT = "px4"
+        self.HEADLESS = True
+        self.CAMERA = True
+        self.LIDAR = True
+        #
+        self.SIM_SUBNET = "10.42"
+        self.AIR_SUBNET = "10.22"
+        self.SIM_ID = "100"
+        self.GROUND_ID = "101"
+        #
+        self.NUM_QUADS = 1
+        self.NUM_VTOLS = 0
+        self.WORLD = "impalpable_greyness"
+        #
+        self.GND_CONTAINER = False
+        self.RTF = 0.0
+        self.START_AS_PAUSED = True
+        self.INSTANCE = 0
+        #
+        sim_parts = self.SIM_SUBNET.split('.')
+        air_parts = self.AIR_SUBNET.split('.')
+        self.SIM_SUBNET = f"{sim_parts[0]}.{int(sim_parts[1]) + self.INSTANCE}"
+        self.AIR_SUBNET = f"{air_parts[0]}.{int(air_parts[1]) + self.INSTANCE}"
+        #
+        self.SIM_NET_NAME = f"aas-sim-network-inst{self.INSTANCE}"
+        self.AIR_NET_NAME = f"aas-air-network-inst{self.INSTANCE}"
+        self.SIM_CONT_NAME = f"simulation-container-inst{self.INSTANCE}"
+        self.GND_CONT_NAME = f"ground-container-inst{self.INSTANCE}"
+        #
+        networks_config = [
+            {"name": self.SIM_NET_NAME, "subnet_base": self.SIM_SUBNET},
+            {"name": self.AIR_NET_NAME, "subnet_base": self.AIR_SUBNET}
+        ]
+        self.networks = {}
+        for net_config in networks_config:
+            net_name = net_config["name"]
+            base_ip = net_config["subnet_base"]
+            print(f"Setting up Docker Network: {net_name}...")
+            try:
+                existing_network = self.client.networks.get(net_name)
+                existing_network.remove()
+                print(f"Existing network '{net_name}' removed.")
+            except docker.errors.NotFound:
+                pass
+            except docker.errors.APIError as e:
+                print(f"Warning: Could not remove {net_name}: {e}")
+            ipam_pool = docker.types.IPAMPool(
+                subnet=f"{base_ip}.0.0/16",
+                gateway=f"{base_ip}.0.1"
+            )
+            ipam_config = docker.types.IPAMConfig(
+                pool_configs=[ipam_pool]
+            )
+            new_network = self.client.networks.create(
+                net_name,
+                driver="bridge",
+                ipam=ipam_config
+            )
+            self.networks[net_name] = new_network
+            print(f"Network '{net_name}' created on subnet {base_ip}.0.0/16")
+
         # SIMULATION_IP = "10.42.0.20"
-        # DYNAMICS_IP = "10.42.0.30"
         # print("Creating simulation-container...")
         # self.simulation_container = self.client.containers.create(
         #     "gdr2-image:latest",
@@ -86,6 +127,8 @@ class AASEnv(gym.Env):
         #     ipv4_address=SIMULATION_IP
         # )
         # self.simulation_container.start()
+
+        # DYNAMICS_IP = "10.42.0.30"
         # print("Creating dynamics-container...")
         # self.dynamics_container = self.client.containers.create(
         #     "gdr2-image:latest",
@@ -232,7 +275,7 @@ class AASEnv(gym.Env):
         if self.render_mode == "human":
             print()  # Add a newline after the final render
         
-        # # Docker clean-up (remove=True handles removal after stop)
+        # Docker clean-up (remove=True handles removal after stop)
         # try:
         #     self.simulation_container.stop()
         #     print(f"Simulation container stopped.")
@@ -243,11 +286,12 @@ class AASEnv(gym.Env):
         #     print(f"Dynamics container stopped.")
         # except Exception:
         #     pass
-        # try:
-        #     self.network.remove()
-        #     print(f"Network {self.NETWORK_NAME} removed.")
-        # except Exception:
-        #     pass
+        for net_name, network_obj in self.networks.items():
+            try:
+                network_obj.remove()
+                print(f"Network {net_name} removed.")
+            except Exception as e:
+                print(f"Warning: Could not remove {net_name}: {e}")
 
         # # Close ZMQ resources
         # if self.socket:
