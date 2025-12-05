@@ -85,13 +85,6 @@ In the `Simulation`'s Xterm terminal:
 /aas/simulation_resources/scripts/plot_logs.sh                                                # Analyze the flight logs at http://10.42.90.100:5006/browse or in MAVExplorer
 ```
 
-Optionally, advance the simulation in **discrete time steps**, in the `Simulation`'s Xterm terminal:
-
-```sh
-python3 /aas/simulation_resources/scripts/gz_step.py --step_sec 2.0
-```
-
-
 Optionally, add or disable **wind effects**, in the `Simulation`'s Xterm terminal:
 
 ```sh
@@ -159,6 +152,11 @@ Included `WORLD`s:
 > ```sh
 > aerial-autonomy-stack
 > │
+> ├── aas-gym
+> │   └── src
+> │       └── aas_gym
+> │           └── aas_env.py                          # aerial-autonomy-stack as a Gymnasium environment
+> │
 > ├── aircraft
 > │   ├── aircraft_ws
 > │   │   └── src
@@ -185,6 +183,8 @@ Included `WORLD`s:
 > │   │
 > │   ├── deploy_build.sh                             # Build `Dockerfile.aircraft` for arm64/Orin
 > │   ├── deploy_run.sh                               # Start the aircraft docker on arm64/Orin or the ground docker on amd64 (deploy or HITL)
+> │   │
+> │   ├── gymnasium_examples.py                       # Examples for the Gymnasium aas-gym package
 > │   │
 > │   ├── sim_build.sh                                # Build all dockerfiles for amd64/simulation
 > │   └── sim_run.sh                                  # Start the simulation (SITL or HITL)
@@ -243,6 +243,47 @@ Included `WORLD`s:
 > 
 > To end the simulation, in each terminal detach Tmux with `Ctrl + b`, then `d`; kill all lingering processes with `tmux kill-server && pkill -f gz`
 > </details>
+
+---
+
+## Gymnasium Environment
+
+Install [Anaconda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/linux.html):
+```sh
+wget https://repo.anaconda.com/archive/Anaconda3-2025.06-0-Linux-x86_64.sh
+bash Anaconda3-2025.06-0-Linux-x86_64.sh
+```
+
+Install `aas-gym`:
+```sh
+cd aerial-autonomy-stack/aas-gym/
+conda create -n aas python=3.13
+conda activate aas
+pip3 install --upgrade pip
+pip3 install -e .
+```
+
+Use as:
+```sh
+cd aerial-autonomy-stack/scripts
+conda activate aas
+python3 gymnasium_examples.py --mode step             # Manually step the simulation
+python3 gymnasium_examples.py --mode speed            # Check the simulation throughput
+```
+
+<!--
+
+TODO:
+python3 gymnasium_examples.py --mode learn            # Train and test a PPO agent
+
+Debug with:
+docker exec -it simulation-container-inst0 tmux attach
+docker exec -it aircraft-container-inst0_1 tmux attach
+
+Clean up with:
+docker stop $(docker ps -q) && docker container prune -f && docker network prune -f
+
+-->
 
 ---
 
@@ -343,9 +384,6 @@ Distributed under the MIT License. See `LICENSE.txt` for more information. Copyr
 - PX4 quad max tilt is limited by the anti-windup gain (zero it to deactivate it): const float arw_gain = 2.f / _gain_vel_p(0);
 
 ## TODOs
-
-Gymnasium RL interface
-- based on https://github.com/JacopoPan/gymnasium-docker-ros2
 
 LiDAR-inertial Odometry and SLAM
 - LiDAR driver https://github.com/Livox-SDK/livox_ros_driver2 in aircraft-image (the LiDAR should publish on topic `/lidar_points` for KISS-ICP)
