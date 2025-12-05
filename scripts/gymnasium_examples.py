@@ -56,46 +56,47 @@ def main():
         env.close()
 
     elif args.mode == "learn":
-        try:
-            # check_env(env) # Throws warning
-            # check_env(env.unwrapped)
-            sb3_check_env(env)
-            print("\nEnvironment passes all checks!")
-        except Exception as e:
-            print(f"\nEnvironment has issues: {e}")
+        print(f"TODO")
+        # try:
+        #     # check_env(env) # Throws warning
+        #     # check_env(env.unwrapped)
+        #     sb3_check_env(env)
+        #     print("\nEnvironment passes all checks!")
+        # except Exception as e:
+        #     print(f"\nEnvironment has issues: {e}")
 
-        env.reset()
-        env.step(env.action_space.sample())
-        env.reset()
+        # env.reset()
+        # env.step(env.action_space.sample())
+        # env.reset()
 
-        # Instantiate the agent
-        model = PPO("MlpPolicy", env, verbose=1, device='cpu')
+        # # Instantiate the agent
+        # model = PPO("MlpPolicy", env, verbose=1, device='cpu')
 
-        # Train the agent
-        print("Training agent...")
-        model.learn(total_timesteps=40000)
-        print("Training complete.")
+        # # Train the agent
+        # print("Training agent...")
+        # model.learn(total_timesteps=40000)
+        # print("Training complete.")
 
-        # Save the agent
-        model_path = "ppo_agent.zip"
-        model.save(model_path)
-        print(f"Model saved to {model_path}")
+        # # Save the agent
+        # model_path = "ppo_agent.zip"
+        # model.save(model_path)
+        # print(f"Model saved to {model_path}")
 
-        # Load and test the trained agent
-        del model # remove to demonstrate loading
-        model = PPO.load(model_path, device='cpu')
+        # # Load and test the trained agent
+        # del model # remove to demonstrate loading
+        # model = PPO.load(model_path, device='cpu')
 
-        print("\nTesting trained agent...")
-        obs, info = env.reset()
-        for _ in range(800): # Run for 800 steps
-            action, _states = model.predict(obs, deterministic=True)
-            obs, reward, terminated, truncated, info = env.step(action)
+        # print("\nTesting trained agent...")
+        # obs, info = env.reset()
+        # for _ in range(800): # Run for 800 steps
+        #     action, _states = model.predict(obs, deterministic=True)
+        #     obs, reward, terminated, truncated, info = env.step(action)
             
-            if terminated or truncated:
-                print("Episode finished. Resetting.")
-                obs, info = env.reset()
+        #     if terminated or truncated:
+        #         print("Episode finished. Resetting.")
+        #         obs, info = env.reset()
         
-        env.close()
+        # env.close()
 
     else:
         print(f"Unknown mode: {args.mode}")
