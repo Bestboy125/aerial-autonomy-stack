@@ -277,7 +277,8 @@ TODO:
 python3 gymnasium_examples.py --mode learn            # Train and test a PPO agent
 
 Debug with:
-docker exec -it [container-name] tmux attach
+docker exec -it simulation-container-inst0 tmux attach
+docker exec -it aircraft-container-inst0_1 tmux attach
 
 Clean up with:
 docker stop $(docker ps -q) && docker container prune -f && docker network prune -f

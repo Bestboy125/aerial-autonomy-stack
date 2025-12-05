@@ -161,6 +161,7 @@ class AASEnv(gym.Env):
                 # "GROUND_ID": self.GROUND_ID,
                 "GND_CONTAINER": str(self.GND_CONTAINER).lower(),
                 "ROS_DOMAIN_ID": self.SIM_ID,
+                "GYMNASIUM" : "true",
             }
         )
         print(f"Connecting {self.SIM_CONT_NAME} to {self.SIM_NET_NAME}...")
@@ -224,14 +225,14 @@ class AASEnv(gym.Env):
             self.aircraft_containers.append(air_cont)
         print("Docker setup complete. All containers are running and connected.")
 
-        # # ZeroMQ Setup
-        # self.ZMQ_PORT = 5555
-        # self.ZMQ_IP = SIMULATION_IP # DYNAMICS_IP
-        # self.zmq_context = zmq.Context()
-        # self.socket = self.zmq_context.socket(zmq.REQ)
-        # self.socket.setsockopt(zmq.RCVTIMEO, 10 * 1000) # 1000 ms = 1 seconds
-        # self.socket.connect(f"tcp://{self.ZMQ_IP}:{self.ZMQ_PORT}")
-        # print(f"ZeroMQ socket connected to {self.ZMQ_IP}:{self.ZMQ_PORT}")
+        # ZeroMQ Setup
+        self.ZMQ_PORT = 5555
+        self.ZMQ_IP = f"{self.SIM_SUBNET}.90.{self.SIM_ID}"
+        self.zmq_context = zmq.Context()
+        self.socket = self.zmq_context.socket(zmq.REQ)
+        self.socket.setsockopt(zmq.RCVTIMEO, 10 * 1000) # 1000 ms = 1 seconds
+        self.socket.connect(f"tcp://{self.ZMQ_IP}:{self.ZMQ_PORT}")
+        print(f"ZeroMQ socket connected to {self.ZMQ_IP}:{self.ZMQ_PORT}")
 
     def _get_obs(self):
         return np.array([self.position, self.velocity], dtype=np.float32)
@@ -369,8 +370,8 @@ class AASEnv(gym.Env):
             except Exception as e:
                 print(f"Warning: Could not remove {net_name}: {e}")
 
-        # # Close ZMQ resources
-        # if self.socket:
-        #     self.socket.close(linger=0)
-        # if self.zmq_context:
-        #     self.zmq_context.term()
+        # Close ZMQ resources
+        if self.socket:
+            self.socket.close(linger=0)
+        if self.zmq_context:
+            self.zmq_context.term()
