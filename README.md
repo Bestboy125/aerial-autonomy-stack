@@ -248,7 +248,7 @@ Included `WORLD`s:
 
 ## Gymnasium Environment
 
-Optionally, install [Anaconda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/linux.html):
+Using a Python `venv` or a [`conda`](https://docs.conda.io/projects/conda/en/stable/user-guide/install/linux.html) environment is optional but recommended:
 ```sh
 wget https://repo.anaconda.com/archive/Anaconda3-2025.06-0-Linux-x86_64.sh
 bash Anaconda3-2025.06-0-Linux-x86_64.sh
