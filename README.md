@@ -256,7 +256,7 @@ conda create -n aas python=3.13
 conda activate aas
 ```
 
-Install `aas-gym`:
+Install the `aas-gym` package (having completed the steps in ["Installation"](#installation)):
 ```sh
 conda activate aas                                    # If using Anaconda
 cd aerial-autonomy-stack/aas-gym/
