@@ -93,11 +93,28 @@ python3 /aas/simulation_resources/scripts/gz_wind.py --from_west 0.0 --from_sout
 python3 /aas/simulation_resources/scripts/gz_wind.py --stop_wind
 ```
 
-To create a new mission, read the banner comments in [`ardupilot_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/ardupilot_interface.hpp) and [`px4_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp) for command line examples of takeoff, orbit, reposition, offboard, land; once flown from CLI, implemented your mission in [`MissionNode.conops_callback()`](/aircraft/aircraft_ws/src/mission/mission/mission_node.py)
-
 > [!TIP]
 > <details>
-> <summary>Familiarize with <b>Tmux shortcuts</b> to navigate the windows/panes in Xterm <i>(click to expand)</i></summary>
+> <summary><b>ROS2 Drone CLI</b> for the `QUAD` and `VTOL` Xterm terminals <i>(click to expand)</i></summary>
+>
+> ```sh
+> # Takeoff action (quads and VTOLs)
+> cancellable_action "ros2 action send_goal /Drone${DRONE_ID}/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0, vtol_transition_heading: 330.0, vtol_loiter_nord: 200.0, vtol_loiter_east: 100.0, vtol_loiter_alt: 120.0}'"
+> # Land (at home) action (quads and VTOLs)
+> cancellable_action "ros2 action send_goal /Drone${DRONE_ID}/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0, vtol_transition_heading: 60.0}'"
+> # Orbit (quads and VTOLs)
+> cancellable_action "ros2 action send_goal /Drone${DRONE_ID}/orbit_action autopilot_interface_msgs/action/Orbit '{east: 500.0, north: 0.0, altitude: 150.0, radius: 200.0}'"
+> # Reposition service (quads only)
+> ros2 service call /Drone${DRONE_ID}/set_reposition autopilot_interface_msgs/srv/SetReposition '{east: 50.0, north: 100.0, altitude: 60.0}'
+> # Offboard action (PX4 quads and VTOLs offboard_setpoint_type: attitude = 0, rates = 1, trajectory = 2; ArduPilot quads offboard_setpoint_type: velocity = 3, acceleration = 4) 
+> cancellable_action "ros2 action send_goal /Drone${DRONE_ID}/offboard_action autopilot_interface_msgs/action/Offboard '{offboard_setpoint_type: 3, max_duration_sec: 5.0}'"
+> # SetSpeed Service (always limited by the autopilot params, for quads applies from the next command, not effective on ArduPilot VTOLs) 
+> ros2 service call /Drone${DRONE_ID}/set_speed autopilot_interface_msgs/srv/SetSpeed '{speed: 3.0}' 
+> ```
+> To create a new mission, implement [`MissionNode.conops_callback()`](/aircraft/aircraft_ws/src/mission/mission/mission_node.py)
+> </details>
+> <details>
+> <summary><b>Tmux shortcuts</b> to navigate the windows/panes in Xterm <i>(click to expand)</i></summary>
 >
 > ```sh
 > Ctrl + b, then n, p                   # Move between Tmux windows 
@@ -116,7 +133,7 @@ To create a new mission, read the banner comments in [`ardupilot_interface.hpp`]
 > ```
 > </details>
 > <details>
-> <summary>Familiarize with <b>Docker cleanup</b> commands <i>(click to expand)</i></summary>
+> <summary><b>Docker cleanup</b> commands <i>(click to expand)</i></summary>
 >
 > ```sh
 > docker ps -a                          # List containers

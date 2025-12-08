@@ -1,26 +1,3 @@
-/* autopilot_interface CLI
-
-# Takeoff and Land actions (quad parameters examples)
-
-cancellable_action "ros2 action send_goal /Drone${DRONE_ID}/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0}'"
-cancellable_action "ros2 action send_goal /Drone${DRONE_ID}/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0}'"
-
-# Takeoff and Land actions (VTOL parameters example)
-
-cancellable_action "ros2 action send_goal /Drone${DRONE_ID}/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0, vtol_loiter_nord: 500.0, vtol_loiter_east: 100.0, vtol_loiter_alt: 120.0}'"
-cancellable_action "ros2 action send_goal /Drone${DRONE_ID}/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0, vtol_transition_heading: 60.0}'"
-
-# Orbit and Offboard (refs: VELOCITY = 3, ACCELERATION = 4) actions 
-
-cancellable_action "ros2 action send_goal /Drone${DRONE_ID}/orbit_action autopilot_interface_msgs/action/Orbit '{east: 500.0, north: 0.0, altitude: 150.0, radius: 200.0}'"
-cancellable_action "ros2 action send_goal /Drone${DRONE_ID}/offboard_action autopilot_interface_msgs/action/Offboard '{offboard_setpoint_type: 3, max_duration_sec: 5.0}'"
-
-# SetSpeed (always limited by the autopilot params, for quads applies from the next command, not effective on VTOLs) and SetReposition (quad only) services
-
-ros2 service call /Drone${DRONE_ID}/set_speed autopilot_interface_msgs/srv/SetSpeed '{speed: 3.0}' 
-ros2 service call /Drone${DRONE_ID}/set_reposition autopilot_interface_msgs/srv/SetReposition '{east: 50.0, north: 100.0, altitude: 60.0}' # relative to Home
-
-*/
 #ifndef AUTOPILOT_INTERFACE__ARDUPILOT_INTERFACE_HPP_
 #define AUTOPILOT_INTERFACE__ARDUPILOT_INTERFACE_HPP_
 
