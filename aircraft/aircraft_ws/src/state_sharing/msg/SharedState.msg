@@ -1,0 +1,5 @@
+std_msgs/Header header
+uint8 drone_id
+float64 latitude_deg
+float64 longitude_deg
+float32 altitude_m

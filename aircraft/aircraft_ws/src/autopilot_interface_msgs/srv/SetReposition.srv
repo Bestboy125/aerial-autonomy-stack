@@ -1,0 +1,5 @@
+float64 east
+float64 north
+float64 altitude
+---
+bool success

@@ -1,0 +1,48 @@
+<% 
+  headless = ENV.fetch('HEADLESS', 'false') == 'true'
+
+  num_quads = ENV.fetch('NUM_QUADS', 1).to_i
+  num_vtols = ENV.fetch('NUM_VTOLS', 0).to_i
+
+  simulated_time = ENV.fetch('SIMULATED_TIME', 'false') == 'true'
+%>
+
+name: ground
+
+windows:
+
+  - ground_system:
+      layout: even-horizontal
+      panes:
+        - clear && echo "So nice to have you with us, this is the ground container."
+        - ros2 run ground_system ground_system --ros-args -p num_drones:=<%= num_quads + num_vtols %> -p base_port:=14540 -p rate:=1.0 <%= simulated_time ? ' -p use_sim_time:=True' : '' %>
+
+  - zenoh_and_qgc:
+      layout: even-horizontal
+      panes:
+        - zenoh-bridge-ros2dds -c /aas/ground_resources/comms/zenoh_config_ground.json5
+        <% if headless %>
+        - echo "Headless mode, not launching QGroundControl."
+        <% else %>
+        - >
+          <% if num_quads > 0 %>
+          sed -i 's/virtualJoystickAutoCenterThrottle=false/virtualJoystickAutoCenterThrottle=true/g' /home/qgcuser/.config/QGroundControl/QGroundControl.ini &&
+          <% end %>
+          gosu qgcuser /squashfs-root/AppRun &
+          (
+            PRIMARY_RES=$(xrandr | grep -oE '[0-9]+x[0-9]+' | head -1)
+            SCREEN_W=$(echo $PRIMARY_RES | cut -d'x' -f1); SCREEN_H=$(echo $PRIMARY_RES | cut -d'x' -f2)
+            SCREEN_SCALE=$((SCREEN_H * 100 / 1080)) # Full HD = 100%
+            WIN_W=$(( 800 * SCREEN_SCALE / 100 )); WIN_H=$(( 480 * SCREEN_SCALE / 100 ))
+            POS_X=$((SCREEN_W - WIN_W)); POS_Y=$((4096))
+            for i in {1..15}; do
+              TARGET_NAME="QGroundControl"
+              CURRENT_DESK=$(wmctrl -d | grep '*' | awk '{print $1}')
+              WID=$(wmctrl -l | awk -v d="$CURRENT_DESK" -v n="$TARGET_NAME" '$2 == d && $0 ~ n "$" {print $1}' | head -n 1)
+              if [ -n "$WID" ]; then
+                wmctrl -i -r "$WID" -e "0,$POS_X,$POS_Y,$WIN_W,$WIN_H" && break
+              fi
+              sleep 2
+            done
+          )
+        <% end %>

@@ -1,0 +1,25 @@
+# Blender MTL File: '1_birch_tree.blend'
+# Material Count: 2
+
+newmtl birch_leaf_autmn
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd birch-leaf-diff.png
+map_d birch-leaf-diff.png
+
+newmtl birch_trunk
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd birch-trunk-diff.png
